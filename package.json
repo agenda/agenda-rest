@@ -14,7 +14,7 @@
     "scheduler"
   ],
   "author": "Keyvan Mir Mohammad Sadeghi <keyvan.m.sadeghi@gmail.com>",
-  "license": "MIT",
+  "license": "ISC",
   "bugs": {
     "url": "https://gitlab.com/satratech/intelliduler/issues"
   },

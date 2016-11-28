@@ -1,0 +1,5 @@
+*
+!*.js
+!*.js.map
+webpack.config.js
+!src/*
