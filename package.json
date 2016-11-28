@@ -1,0 +1,22 @@
+{
+  "name": "intelliduler",
+  "version": "0.0.1",
+  "description": "Scheduling-as-a-Service",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/satratech/intelliduler.git"
+  },
+  "keywords": [
+    "scheduler"
+  ],
+  "author": "Keyvan Mir Mohammad Sadeghi <keyvan.m.sadeghi@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://gitlab.com/satratech/intelliduler/issues"
+  },
+  "homepage": "https://gitlab.com/satratech/intelliduler#README"
+}
