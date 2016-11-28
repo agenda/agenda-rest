@@ -46,5 +46,8 @@
     "eslint-loader": "^1.5.0",
     "eslint-plugin-babel": "^3.3.0",
     "webpack": "^1.12.14"
+  },
+  "dependencies": {
+    "agenda": "^0.9.0"
   }
 }
