@@ -1,17 +1,17 @@
-var webpack = require('webpack');
-var path = require('path');
-var fs = require("file-system");
+const webpack = require('webpack');
+const path = require('path');
+const fs = require('file-system');
 
-var mods = {};
-fs.readdirSync("node_modules")
-    .filter(x => [".bin"].indexOf(x) === -1)
+const mods = {};
+fs.readdirSync('node_modules')
+    .filter(x => ['.bin'].indexOf(x) === -1)
     .forEach(mod => {
-        mods[mod] = "commonjs " + mod;
+        mods[mod] = 'commonjs ' + mod;
     });
 
-var plugins = [];
+const plugins = [];
 
-var config = {
+const config = {
     target: 'node',
     entry: {
         './index': './src/index'
@@ -26,21 +26,17 @@ var config = {
     },
     externals: mods,
     module: {
-        loaders: [
+        rules: [
             // Support for ES6 modules and the latest ES syntax.
             {
                 test: /\.jsx?$/,
                 exclude: /(node_modules)/,
-                loader: "babel"
+                loader: 'babel-loader'
             }
         ]
 },
-    resolveLoader: {
-        root: path.join(__dirname, 'node_modules')
-    },
     resolve: {
-        root: path.resolve('./src'),
-        extensions: ['', '.js']
+        extensions: ['.js']
     },
     plugins: plugins
 };

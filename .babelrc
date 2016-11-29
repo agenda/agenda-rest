@@ -1,0 +1,21 @@
+{
+  "plugins": [
+    "add-module-exports",
+    "transform-es2015-modules-umd",
+    ["transform-runtime", {
+      "polyfill": false,
+      "regenerator": true
+    }],
+      "transform-es2015-for-of",
+      "syntax-object-rest-spread",
+      "transform-es2015-parameters",
+      "transform-object-rest-spread",
+      "syntax-async-functions",
+      "transform-es2015-arrow-functions",
+      "transform-es2015-spread",
+      "transform-es2015-destructuring",
+      "transform-es2015-modules-commonjs",
+      "transform-strict-mode",
+      "transform-regenerator"
+    ]
+}

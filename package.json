@@ -4,6 +4,9 @@
   "description": "Scheduling-as-a-Service",
   "main": "index.js",
   "scripts": {
+    "lint": "./node_modules/.bin/eslint ./src --fix",
+    "dev": "./node_modules/.bin/webpack --progress --colors --watch",
+    "start": "./node_modules/.bin/webpack && node $NODE_DEBUG_OPTION index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -45,9 +48,12 @@
     "eslint": "^3.3.1",
     "eslint-loader": "^1.5.0",
     "eslint-plugin-babel": "^3.3.0",
-    "webpack": "^1.12.14"
+    "file-system": "^2.2.2",
+    "webpack": "^2.1.0-beta.27"
   },
   "dependencies": {
-    "agenda": "^0.9.0"
+    "agenda": "^0.9.0",
+    "koa": "^2.0.0-alpha.7",
+    "koa-router": "^7.0.1"
   }
 }
