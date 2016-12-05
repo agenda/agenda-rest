@@ -3,6 +3,6 @@
  */
 
 export default {
-    agendaMongoUrl: 'mongodb://192.168.10.101/agenda',
+    agendaMongoUrl: `mongodb://192.168.10.101/${process.env.DB_NAME}`,
     timeout: 5000
 };

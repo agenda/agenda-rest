@@ -8,58 +8,68 @@ import logger from 'koa-logger';
 import Router from 'koa-router';
 import bodyParser from 'koa-bodyparser';
 import {keyValues} from 'pythonic';
-import qs from 'querystring';
+import querystring from 'querystring';
 import rp from 'request-promise';
 import settings from './settings';
 
 const app = new Koa();
 const router = new Router();
 app
-    .use(router.routes())
     .use(logger())
     .use(bodyParser({
         onerror(error, ctx) {
             ctx.throw(`cannot parse request body, ${JSON.stringify(error)}`, 400);
         }
-    }));
+    }))
+    .use(router.routes());
 
 const agenda = new Agenda({db: {address: settings.agendaMongoUrl}});
 const mongoDb = () => agenda._mdb;
 let jobs;
 
-const defineJob = ({name, url, callback} = {}) => {
+const defineJob = ({name, url, method, callbackUrl, callbackMethod} = {}) => {
     agenda.define(name, (job, done) => {
         const data = job.attrs.data;
         let uri = url;
-        for (const [key, value] of keyValues(data))
+        for (const [key, value] of keyValues(data.params))
             uri = uri.replace(`:${key}`, value);
+        const query = querystring.stringify(data.query);
+        if (query !== '')
+            uri += `?${query}`;
         Promise.race([
             new Promise((resolve, reject) => setTimeout(() =>
-                reject('TimeOutError'), settings.timeout)),
+                reject(new Error('TimeOutError')), settings.timeout)),
             rp({
-                method: data.method || 'POST',
+                method: method || 'POST',
                 uri: uri,
-                body: data,
+                body: data.body,
                 json: true
             })
         ])
-            .then(result => {
-                console.log(result)
-                done();
-            })
             .catch(error => {
-                console.log(error)
-                done();
-            });
+                job.fail(error.message);
+                return {error: error.message};
+            })
+            .then(result => {
+                if (callbackUrl)
+                    return rp({
+                        method: callbackMethod || 'POST',
+                        uri: callbackUrl,
+                        body: {data: data.body, response: result},
+                        json: true
+                    });
+            })
+            .catch(error => job.fail(`failure in callback: ${error.message}`))
+            .then(done);
     });
 
     jobs.count({name}, (error, count) => {
         if (error)
             return console.dir(error);
         if (count < 1)
-            jobs.insert({name, url, callback});
+            jobs.insert({name, url, method, callbackUrl, callbackMethod});
         else
-            jobs.update({name}, {$set: {url, callback}});
+            jobs.update({name}, {$set: {url, method, callbackUrl, callbackMethod}});
     });
 };
 
@@ -76,26 +86,45 @@ agenda.on('ready', () => {
 
 
 router.post('/api/new', async (ctx, next) => {
-    console.log(`ssss ${mongoDb()}`);
-    // const params = ctx.request.body;
-    const params = {};
-    params.name = 'sege';
-    params.url = 'http://localhost:3000/api/expert/:id';
-    defineJob(params);
+    defineJob(ctx.request.body);
     ctx.body = 'job defined';
     await next();
 });
 
 router.post('/api/schedule', async (ctx, next) => {
-    // const params = ctx.request.body;
-    const params = {};
-    params.human_interval = 'in 5 seconds';
-    params.name = 'sege';
-    agenda.schedule(params.human_interval, params.name, {id: 16841, method:'GET'});
+    agenda.schedule(ctx.request.body.human_interval, ctx.request.body.name, ctx.request.body.data);
     ctx.body = 'job scheduled';
     await next();
 });
 
+router.post('/api/every', async (ctx, next) => {
+    agenda.every(ctx.request.body.human_interval, ctx.request.body.name, ctx.request.body.data);
+    ctx.body = 'job scheduled for repetition';
+    await next();
+});
+
+router.post('/api/cancel', async (ctx, next) => {
+    ctx.body = await new Promise((resolve, reject) => {
+        agenda.cancel(ctx.request.body, (error, numRemoved) => {
+            if (error) {
+                ctx.status = 400;
+                reject(error.message);
+            } else
+                resolve(`${numRemoved} jobs removed`);
+        });
+    });
+    await next();
+});
+
+const graceful = () => {
+    console.log('Shutting down gracefully...');
+    agenda.stop(() => {
+        process.exit(0);
+    });
+};
+
+process.on('SIGTERM', graceful);
+process.on('SIGINT', graceful);
 
 app.listen(4040, () => {
     console.log('App listening on port 4040.');
