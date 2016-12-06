@@ -1,6 +1,6 @@
 {
   "name": "agenda-rest",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Scheduling as a Service",
   "main": "index.js",
   "jsnext:main": "./src/index.js",
