@@ -1,6 +1,5 @@
-/**
- * Created by keyvan on 12/6/16.
- */
+#!/usr/bin/env node
+
 const program = require('commander');
 
 program
