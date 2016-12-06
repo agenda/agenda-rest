@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/satratech/intelliduler.git"
+    "url": "git+ssh://git@github.com/assister-ai/agenda-rest.git"
   },
   "keywords": [
     "schedule",
@@ -23,14 +23,14 @@
     "agenda"
   ],
   "author": "Keyvan Mir Mohammad Sadeghi <keyvan.m.sadeghi@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "bin": {
     "agenda-rest": "index.js"
   },
   "bugs": {
-    "url": "https://gitlab.com/satratech/intelliduler/issues"
+    "url": "https://github.com/assister-ai/agenda-rest/issues"
   },
-  "homepage": "https://gitlab.com/satratech/intelliduler#README",
+  "homepage": "https://github.com/assister-ai/agenda-rest#README",
   "devDependencies": {
     "babel": "^6.5.2",
     "babel-cli": "^6.11.4",
