@@ -2,7 +2,7 @@
 *.js.map
 !src/**/*.js
 !webpack.config.js
-!webpack.config.cli.js
+!cli.js
 
 # Created by https://www.gitignore.io/api/linux,webstorm,node
 

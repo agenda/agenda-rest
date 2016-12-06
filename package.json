@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "./node_modules/.bin/eslint ./src --fix",
     "dev": "npm run build && DB_HOST=192.168.10.101 node $NODE_DEBUG_OPTION cli.js",
-    "build": "./node_modules/.bin/webpack && ./node_modules/.bin/webpack --config webpack.config.cli.js",
+    "build": "./node_modules/.bin/webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

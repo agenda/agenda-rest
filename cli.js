@@ -1,7 +1,7 @@
 /**
  * Created by keyvan on 12/6/16.
  */
-import program from 'commander';
+const program = require('commander');
 
 program
     .option('-d, --dbname <dbname>', '[optional] Name of the Mongo database')
@@ -11,7 +11,7 @@ program
         (n, d) => +n || d, 5000)
     .parse(process.argv);
 
-import settings from './settings';
+const settings = require('./settings');
 
 if (program.dbname)
     settings.dbname = program.dbname;
@@ -26,8 +26,6 @@ else if (!settings.dbhost) {
 if (program.timeout)
     settings.timeout = program.timeout;
 
-import app from './index';
-
-app.listen(program.port, () => {
+require('./index').listen(program.port, () => {
     console.log(`App listening on port ${program.port}.`);
 });

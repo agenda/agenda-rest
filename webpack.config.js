@@ -3,23 +3,30 @@ const path = require('path');
 const fs = require('file-system');
 
 const mods = {};
-fs.readdirSync('node_modules')
+fs.readdirSync('node_modules').concat(['./settings', './index'])
     .filter(x => ['.bin'].indexOf(x) === -1)
     .forEach(mod => {
         mods[mod] = 'commonjs ' + mod;
     });
 
-const plugins = [];
+const plugins = [
+    // new webpack.optimize.CommonsChunkPlugin({
+    //     name: 'settings',
+    //     chunks: 'settings-unchunked'
+    // })
+];
 
 const config = {
     target: 'node',
     entry: {
+        './settings': './src/settings',
         './index': './src/index'
     },
     devtool: 'source-map',
     output: {
         path: './',
         filename: '[name].js',
+        chunkFilename: "[id].chunk.js",
         library: '[name]',
         libraryTarget: 'umd',
         umdNamedDefine: true
