@@ -2,7 +2,7 @@
  * Created by keyvan on 12/4/16.
  */
 
-let dbname = process.env.DB_NAME;
+let dbname = process.env.DB_NAME || 'agenda';
 let dbhost = process.env.DB_HOST;
 let collection = 'agendaJobs';
 let definitions = 'jobDefinitions';

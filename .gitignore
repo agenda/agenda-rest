@@ -2,8 +2,7 @@
 *.js.map
 !src/**/*.js
 !webpack.config.js
-!webpack.config.jasmine.js
-!jasmine.runner.js
+!webpack.config.cli.js
 
 # Created by https://www.gitignore.io/api/linux,webstorm,node
 

@@ -6,8 +6,8 @@
   "jsnext:main": "./src/index.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint ./src --fix",
-    "dev": "./node_modules/.bin/webpack && DB_HOST=192.168.10.101 DB_NAME=agenda node $NODE_DEBUG_OPTION index.js",
-    "build": "./node_modules/.bin/webpack",
+    "dev": "npm run build && DB_HOST=192.168.10.101 node $NODE_DEBUG_OPTION cli.js",
+    "build": "./node_modules/.bin/webpack && ./node_modules/.bin/webpack --config webpack.config.cli.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

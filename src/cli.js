@@ -15,10 +15,6 @@ import settings from './settings';
 
 if (program.dbname)
     settings.dbname = program.dbname;
-else if (!settings.dbname) {
-    console.error("neither '--dbname' nor '$DB_NAME env' were present");
-    process.exit(1);
-}
 
 if (program.dbhost)
     settings.dbhost = program.dbhost;
@@ -27,7 +23,8 @@ else if (!settings.dbhost) {
     process.exit(1);
 }
 
-settings.timeout = program.timeout;
+if (program.timeout)
+    settings.timeout = program.timeout;
 
 import app from './index';
 
