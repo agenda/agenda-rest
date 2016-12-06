@@ -23,7 +23,12 @@ app
     }))
     .use(router.routes());
 
-const agenda = new Agenda({db: {address: settings.agendaMongoUrl}});
+const agenda = new Agenda({
+    db: {
+        address: settings.agendaMongoUrl,
+        collection: settings.collection
+    }
+});
 const mongoDb = () => agenda._mdb;
 let jobs;
 
@@ -71,10 +76,12 @@ const defineJob = ({name, url, method, callbackUrl, callbackMethod} = {}) => {
         else
             jobs.update({name}, {$set: {url, method, callbackUrl, callbackMethod}});
     });
+
+    return 'job defined';
 };
 
 agenda.on('ready', () => {
-    jobs = mongoDb().collection('job-definitions');
+    jobs = mongoDb().collection(settings.definitions);
     jobs.find().each((error, job) => {
         if (!job)
             return;
@@ -84,35 +91,69 @@ agenda.on('ready', () => {
     agenda.start();
 });
 
+const newCheck = body => {
+    if (!body.name || !body.url)
+        throw new Error('expected request body to match {name, url}');
+    return body;
+};
 
 router.post('/api/new', async (ctx, next) => {
-    defineJob(ctx.request.body);
-    ctx.body = 'job defined';
+    ctx.body = await Promise.resolve(ctx.request.body)
+        .then(newCheck)
+        .then(defineJob)
+        .catch(error => {
+            ctx.status = 400;
+            return error.message;
+        });
     await next();
 });
 
+const scheduleCheckAndFillMissing = body => {
+    if (!body.name || !body.human_interval)
+        throw new Error('expected request body to match {name, human_interval}');
+    if (!body.data)
+        body.data = {};
+    if (!body.data.body)
+        body.data.body = {};
+    if (!body.data.params)
+        body.data.params = {};
+    if (!body.data.query)
+        body.data.query = {};
+    return body;
+};
+
+const schedulePromise = (ctx, scheduleOrEvery) => Promise.resolve(ctx.request.body)
+    .then(scheduleCheckAndFillMissing)
+    .then(body => {
+        agenda[scheduleOrEvery].apply(agenda, [body.human_interval, body.name, body.data]);
+        return `job scheduled${scheduleOrEvery === 'every' ? ' for repetition' : ''}`;
+    })
+    .catch(error => {
+        ctx.status = 400;
+        return error.message;
+    });
+
 router.post('/api/schedule', async (ctx, next) => {
-    agenda.schedule(ctx.request.body.human_interval, ctx.request.body.name, ctx.request.body.data);
-    ctx.body = 'job scheduled';
+    ctx.body = await schedulePromise(ctx, 'schedule');
     await next();
 });
 
 router.post('/api/every', async (ctx, next) => {
-    agenda.every(ctx.request.body.human_interval, ctx.request.body.name, ctx.request.body.data);
-    ctx.body = 'job scheduled for repetition';
+    ctx.body = await schedulePromise(ctx, 'every');
     await next();
 });
 
 router.post('/api/cancel', async (ctx, next) => {
-    ctx.body = await new Promise((resolve, reject) => {
-        agenda.cancel(ctx.request.body, (error, numRemoved) => {
-            if (error) {
-                ctx.status = 400;
-                reject(error.message);
-            } else
-                resolve(`${numRemoved} jobs removed`);
+    ctx.body = await Promise.resolve(ctx.request.body)
+        .then(body => new Promise((resolve, reject) =>
+            agenda.cancel(ctx.request.body,
+                (error, numRemoved) => { if (error) reject(error); else resolve(numRemoved); })
+        ))
+        .then(numRemoved => `${numRemoved} jobs removed`)
+        .catch(error => {
+            ctx.status = 400;
+            return error.message;
         });
-    });
     await next();
 });
 
@@ -126,6 +167,4 @@ const graceful = () => {
 process.on('SIGTERM', graceful);
 process.on('SIGINT', graceful);
 
-app.listen(4040, () => {
-    console.log('App listening on port 4040.');
-});
+export default app;

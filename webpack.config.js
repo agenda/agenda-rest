@@ -14,7 +14,8 @@ const plugins = [];
 const config = {
     target: 'node',
     entry: {
-        './index': './src/index'
+        './index': './src/index',
+        './cli': ['./src/cli']
     },
     devtool: 'source-map',
     output: {
