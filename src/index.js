@@ -167,4 +167,5 @@ const graceful = () => {
 process.on('SIGTERM', graceful);
 process.on('SIGINT', graceful);
 
+export {app, router};
 export default app;
