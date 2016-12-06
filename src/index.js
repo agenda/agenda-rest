@@ -158,7 +158,7 @@ router.post('/api/cancel', async (ctx, next) => {
 });
 
 const graceful = () => {
-    console.log('Shutting down gracefully...');
+    console.log('\nShutting down gracefully...');
     agenda.stop(() => {
         process.exit(0);
     });
