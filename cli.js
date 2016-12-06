@@ -25,6 +25,6 @@ else if (!settings.dbhost) {
 if (program.timeout)
     settings.timeout = program.timeout;
 
-require('./index').listen(program.port, () => {
+require('./index').app.listen(program.port, () => {
     console.log(`App listening on port ${program.port}.`);
 });
