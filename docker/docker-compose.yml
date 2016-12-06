@@ -1,0 +1,32 @@
+version: '2'
+services:
+  agenda-rest:
+    build: ../
+    environment:
+      - DB_HOST=mongo
+    ports:
+      - "4040:4040"
+    depends_on:
+      - mongo
+    links:
+      - mongo
+
+  agendash:
+    build: ./Dockerfile.agendash 
+    environment:
+      - DB_NAME=agenda
+      - DB_HOST=mongo
+    ports:
+      - "3022:3022"
+    depends_on:
+      - mongo
+    links:
+      - mongo
+
+  mongo:
+    image: mongo
+    volumes:
+      - ./db:/data/db
+    expose:
+      - "27017"
+

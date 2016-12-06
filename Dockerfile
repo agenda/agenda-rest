@@ -1,14 +1,8 @@
 FROM node:boron
 
-# Create app directory
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
+RUN npm install -g agenda-rest
 
-# Install app dependencies
-COPY package.json /usr/src/app/
-RUN npm install
+#expose
+EXPOSE 4040
 
-# Bundle app source
-COPY . /usr/src/app
-
-CMD [ "npm", "start" ]
+CMD ['agenda-rest']
