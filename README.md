@@ -1,7 +1,7 @@
 # agenda-rest
 Scheduling as a Service, based on [Agenda](https://github.com/rschmukler/agenda)
-Assuming all job types could be thought of as REST endpoints, scheduling could be offered as a service.
-`agenda-rest` does just that, introduce a url, name it, agenda-rest will call it on the times that you specify.
+
+Assuming all job types could be thought of as REST endpoints, scheduling could be offered as a service. `agenda-rest` does just that, introduce a url, name it, agenda-rest will call it on the times that you specify.
 
 ## Usage
 ```bash
