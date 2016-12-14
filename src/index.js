@@ -32,7 +32,7 @@ const agenda = new Agenda({
 const mongoDb = () => agenda._mdb;
 let jobs;
 
-const defineJob = ({name, url, method, callbackUrl, callbackMethod} = {}) => {
+const defineJob = ({name, url, method, callback} = {}) => {
     agenda.define(name, (job, done) => {
         const data = job.attrs.data;
         let uri = url;
@@ -48,6 +48,7 @@ const defineJob = ({name, url, method, callbackUrl, callbackMethod} = {}) => {
                 method: method || 'POST',
                 uri: uri,
                 body: data.body,
+                headers: data.headers || {},
                 json: true
             })
         ])
@@ -56,10 +57,11 @@ const defineJob = ({name, url, method, callbackUrl, callbackMethod} = {}) => {
                 return {error: error.message};
             })
             .then(result => {
-                if (callbackUrl)
+                if (callback)
                     return rp({
-                        method: callbackMethod || 'POST',
-                        uri: callbackUrl,
+                        method: callback.method || 'POST',
+                        uri: callback.url,
+                        headers: callback.headers || {},
                         body: {data: data.body, response: result},
                         json: true
                     });
@@ -72,9 +74,9 @@ const defineJob = ({name, url, method, callbackUrl, callbackMethod} = {}) => {
         if (error)
             return console.dir(error);
         if (count < 1)
-            jobs.insert({name, url, method, callbackUrl, callbackMethod});
+            jobs.insert({name, url, method, callback});
         else
-            jobs.update({name}, {$set: {url, method, callbackUrl, callbackMethod}});
+            jobs.update({name}, {$set: {url, method, callback}});
     });
 
     return 'job defined';
