@@ -20,8 +20,11 @@ Defines a new category of jobs
     name,           // New job type's name
     url,            // koa-router style url
     method,         // (optional) Request type, default: POST
-    callbackUrl,    // (optional) Url to call with response after invokation
-    callbackMethod  // (optional) Callback request type, default: POST
+    callback: {     // (optional) to call with response after invocation
+        url,
+        method,
+        headers
+    }
 }
 ```
 
@@ -35,10 +38,21 @@ Schedule a job for single or multiple occurrences
     name,           // Name of the type to create the instance from
     human_interval, // Interval in which job should be invoked
     data: {         // (optional) default: {}
+        headers,    // Http headers, e.g. { Authorization: '<token>' }
         params,     // Path parameters, to replace `:param` notations in job definition's url
         query,      // Query parameters (?foo=bar&baz=qux)
         body        // Accompanying data sent along the request
     }
+}
+```
+
+Callback, if present, would be invoked by the following object:
+```javascript
+{
+    data: {
+        // passed data object, same as above
+    },
+    response        // response from invocation
 }
 ```
 
