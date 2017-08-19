@@ -5,6 +5,7 @@
   "main": "index.js",
   "jsnext:main": "./src/index.js",
   "scripts": {
+    "prepublish": "npm run build",
     "lint": "eslint ./src --fix",
     "dev": "npm run build && DB_HOST=192.168.10.101 node $NODE_DEBUG_OPTION cli.js",
     "build": "webpack",
