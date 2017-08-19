@@ -1,6 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
-const fs = require('file-system');
+const fs = require('fs');
 
 const mods = {};
 fs.readdirSync('node_modules').concat(['./settings', './index'])
@@ -9,12 +9,7 @@ fs.readdirSync('node_modules').concat(['./settings', './index'])
         mods[mod] = 'commonjs ' + mod;
     });
 
-const plugins = [
-    // new webpack.optimize.CommonsChunkPlugin({
-    //     name: 'settings',
-    //     chunks: 'settings-unchunked'
-    // })
-];
+const plugins = [];
 
 const config = {
     target: 'node',
@@ -24,7 +19,7 @@ const config = {
     },
     devtool: 'source-map',
     output: {
-        path: './',
+        path: path.resolve(__dirname, './'),
         filename: '[name].js',
         chunkFilename: "[id].chunk.js",
         library: '[name]',

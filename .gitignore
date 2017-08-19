@@ -4,6 +4,8 @@
 !webpack.config.js
 !cli.js
 
+package-lock.json
+
 # Created by https://www.gitignore.io/api/linux,webstorm,node
 
 ### Linux ###
