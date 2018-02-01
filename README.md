@@ -1,4 +1,5 @@
 [![npm version](https://badge.fury.io/js/agenda-rest.svg)](https://www.npmjs.com/package/agenda-rest)
+<a href="https://slackin-ekwifvcwbr.now.sh/"><img src="https://slackin-ekwifvcwbr.now.sh/badge.svg" alt="Slack Status"></a>
 
 # agenda-rest
 
