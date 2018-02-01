@@ -22,11 +22,9 @@ const agenda = new Agenda({
     collection: settings.collection
   }
 });
-const mongoDb = () => agenda._mdb;
-let jobs;
 
 agenda.on('ready', () => {
-  jobs = mongoDb().collection(settings.definitions);
+  const jobs = agenda._mdb.collection(settings.definitions);
   jobs.find().each((error, job) => {
     if (!job) {
       return;
