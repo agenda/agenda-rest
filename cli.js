@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const program = require('commander');
+const app = require('./dist/index');
 
 program
     .option('-d, --dbname <dbname>', '[optional] Name of the Mongo database')
@@ -13,20 +14,20 @@ program
 const settings = require('./dist/settings');
 
 if (program.dbname) {
-	settings.dbname = program.dbname;
+  settings.dbname = program.dbname;
 }
 
 if (program.dbhost) {
-	settings.dbhost = program.dbhost;
+  settings.dbhost = program.dbhost;
 } else if (!settings.dbhost) {
-	console.error('neither \'--dbhost\' nor \'$DB_HOST env\' were present');
-	process.exit(1);
+  console.error('neither \'--dbhost\' nor \'$DB_HOST env\' were present');
+  process.exit(1);
 }
 
 if (program.timeout) {
-	settings.timeout = program.timeout;
+  settings.timeout = program.timeout;
 }
 
-require('./dist/index').app.listen(program.port, () => {
-	console.log(`App listening on port ${program.port}.`);
+app.listen(program.port, () => {
+  console.log(`App listening on port ${program.port}.`);
 });
