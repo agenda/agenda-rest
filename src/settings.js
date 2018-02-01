@@ -1,5 +1,5 @@
 let dbname = process.env.DB_NAME || 'agenda';
-let dbhost = process.env.DB_HOST;
+let dbhost = process.env.DB_HOST || 'localhost';
 let collection = 'agendaJobs';
 let definitions = 'jobDefinitions';
 let timeout = 5000;
