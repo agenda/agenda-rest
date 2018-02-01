@@ -1,6 +1,0 @@
-*
-!*.js
-!*.js.map
-webpack.config.js
-!src/*
-package-lock.json

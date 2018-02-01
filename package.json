@@ -7,7 +7,7 @@
   "scripts": {
     "prepublish": "npm run build",
     "lint": "xo",
-    "dev": "npm run build && DB_HOST=192.168.10.101 node $NODE_DEBUG_OPTION cli.js",
+    "dev": "npm run build && node $NODE_DEBUG_OPTION cli.js",
     "build": "webpack",
     "test": "ava"
   },
