@@ -76,9 +76,10 @@
     "pythonic": "0.0.6",
     "regenerator-runtime": "^0.11.1",
     "request": "^2.79.0",
-    "request-promise": "^4.1.1"
-},
-"xo": {
+    "request-promise": "^4.1.1",
+    "supertest": "^3.0.0"
+  },
+  "xo": {
     "space": 2,
     "rules": {
       "space-before-function-paren": [
