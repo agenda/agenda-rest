@@ -23,7 +23,7 @@ const agenda = new Agenda({
   }
 });
 
-agenda.on('ready', () => {
+const agendaReady = new Promise(resolve => agenda.on('ready', () => {
   const jobs = agenda._mdb.collection(settings.definitions);
   jobs.find().each((error, job) => {
     if (!job) {
@@ -33,16 +33,32 @@ agenda.on('ready', () => {
   });
 
   agenda.start();
-});
+  resolve(jobs);
+}));
 
 router.post('/api/new', async (ctx, next) => {
   ctx.body = await Promise.resolve(ctx.request.body)
     .then(newCheck)
-    .then(defineJob)
+    .then(job => Promise.all([agendaReady, job]))
+    .then(([jobs, job]) => defineJob(agenda, jobs, job))
     .catch(err => {
       ctx.status = 400;
       return err.message;
     });
+  await next();
+});
+
+router.get('/api/jobs', async (ctx, next) => {
+  ctx.body = await agendaReady
+    .then(jobs => new Promise((resolve, reject) =>
+      jobs.find().toArray((err, array) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(array);
+        }
+      })
+    ));
   await next();
 });
 
@@ -110,5 +126,5 @@ const graceful = () => {
 process.on('SIGTERM', graceful);
 process.on('SIGINT', graceful);
 
-export {app, router};
+export {app, router, agendaReady};
 export default app;
