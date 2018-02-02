@@ -9,7 +9,7 @@
     "lint": "xo",
     "dev": "npm run build && node $NODE_DEBUG_OPTION cli.js",
     "build": "webpack",
-    "test": "ava"
+    "test": "ava && npm run lint"
   },
   "repository": {
     "type": "git",
