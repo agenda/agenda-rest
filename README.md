@@ -39,7 +39,7 @@ Defines a new category of jobs
 ```
 
 ### **`/api/job`**
-Updates defition of a job category
+Updates definition of a job category
 
 * Method: PUT
 * Data: same as POST
