@@ -13,7 +13,6 @@ const countJobByName = async (name, jobs) => new Promise((resolve, reject) => jo
   if (err) {
     reject(err);
   } else {
-    console.log(count)
     resolve(count);
   }
 }));
