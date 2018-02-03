@@ -20,7 +20,7 @@ Get a list of defined jobs
 
 * Method: GET
 
-### **`/api/new`**
+### **`/api/job`**
 Defines a new category of jobs
 
 * Method: POST
@@ -37,6 +37,12 @@ Defines a new category of jobs
     }
 }
 ```
+
+### **`/api/job`**
+Updates defition of a job category
+
+* Method: PUT
+* Data: same as POST
 
 ### **`/api/schedule`** & **`/api/every`**
 Schedule a job for single or multiple occurrences
