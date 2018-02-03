@@ -1,7 +1,6 @@
-import defineJob from './define-job';
-import newCheck from './new-check';
-
 export {
-  defineJob,
-  newCheck
-};
+  checkJobFormat,
+  assertJobAlreadyExists,
+  assertJobNotExists,
+  defineJob
+} from './job';

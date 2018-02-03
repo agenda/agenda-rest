@@ -4,7 +4,7 @@ import logger from 'koa-logger';
 import Router from 'koa-router';
 import bodyParser from 'koa-bodyparser';
 import settings from './settings';
-import {defineJob, newCheck} from './utils';
+import {checkJobFormat, assertJobAlreadyExists, assertJobNotExists, defineJob} from './utils';
 
 const app = new Koa();
 const router = new Router();
@@ -29,18 +29,34 @@ const agendaReady = new Promise(resolve => agenda.on('ready', () => {
     if (!job) {
       return;
     }
-    defineJob(agenda, jobs, job);
+    defineJob(job, jobs, agenda);
   });
 
   agenda.start();
   resolve(jobs);
 }));
 
-router.post('/api/new', async (ctx, next) => {
-  ctx.body = await Promise.resolve(ctx.request.body)
-    .then(newCheck)
-    .then(job => Promise.all([agendaReady, job]))
-    .then(([jobs, job]) => defineJob(agenda, jobs, job))
+router.post('/api/job', async (ctx, next) => {
+  const job = ctx.request.body;
+  const jobs = await agendaReady;
+  ctx.body = await Promise.resolve(job)
+    .then(checkJobFormat)
+    .then(() => assertJobNotExists(job, jobs))
+    .then(() => defineJob(job, jobs, agenda))
+    .catch(err => {
+      ctx.status = 400;
+      return err.message;
+    });
+  await next();
+});
+
+router.put('/api/job', async (ctx, next) => {
+  const job = ctx.request.body;
+  const jobs = await agendaReady;
+  ctx.body = await Promise.resolve(job)
+    .then(checkJobFormat)
+    .then(() => assertJobAlreadyExists(job, jobs))
+    .then(() => defineJob(job, jobs, agenda))
     .catch(err => {
       ctx.status = 400;
       return err.message;

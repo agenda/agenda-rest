@@ -3,7 +3,32 @@ import {keyValues} from 'pythonic';
 import rp from 'request-promise';
 import settings from '../settings';
 
-const defineJob = (agenda, jobs, {name, url, method, callback} = {}) => {
+const checkJobFormat = job => {
+  if (!job.name || !job.url) {
+    throw new Error('expected request body to match {name, url}');
+  }
+};
+
+const countJobByName = async (name, jobs) => new Promise((resolve, reject) => jobs.count({name}, (err, count) => {
+  if (err) {
+    reject(err);
+  } else {
+    console.log(count)
+    resolve(count);
+  }
+}));
+
+const checkFunctionOnJobCount = (assertFunction, errorFunction) => async (job, jobs) => countJobByName(job.name, jobs)
+  .then(count => {
+    if (!assertFunction(count)) {
+      throw new Error(errorFunction(job.name));
+    }
+  });
+
+const assertJobAlreadyExists = checkFunctionOnJobCount(count => count > 0, name => `Did not find a job named "${name}"`);
+const assertJobNotExists = checkFunctionOnJobCount(count => count <= 0, name => `A job named "${name}" already exist`);
+
+const defineJob = ({name, url, method, callback} = {}, jobs, agenda) => {
   agenda.define(name, (job, done) => {
     const data = job.attrs.data;
     let uri = url;
@@ -57,4 +82,9 @@ const defineJob = (agenda, jobs, {name, url, method, callback} = {}) => {
   return 'job defined';
 };
 
-export default defineJob;
+export {
+  checkJobFormat,
+  assertJobAlreadyExists,
+  assertJobNotExists,
+  defineJob
+};
