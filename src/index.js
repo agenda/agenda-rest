@@ -4,14 +4,21 @@ import logger from 'koa-logger';
 import Router from 'koa-router';
 import bodyParser from 'koa-bodyparser';
 import settings from './settings';
-import {checkJobFormat, assertJobAlreadyExists, assertJobNotExists, defineJob} from './utils';
+import {jobOperations, jobAssertions, promiseJobOperation} from './job';
 
 const app = new Koa();
 const router = new Router();
 app.use(logger());
+app.use(async (ctx, next) => await next()
+  .catch(err => {
+    console.log(err);
+    ctx.body = String(err);
+    ctx.status = err.status || 500;
+  })
+);
 app.use(bodyParser({
   onerror(error, ctx) {
-    ctx.throw(`cannot parse request body, ${JSON.stringify(error)}`, 400);
+    ctx.throw(400, `cannot parse request body, ${JSON.stringify(error)}`);
   }
 }));
 app.use(router.routes());
@@ -29,40 +36,24 @@ const agendaReady = new Promise(resolve => agenda.on('ready', () => {
     if (!job) {
       return;
     }
-    defineJob(job, jobs, agenda);
+    jobOperations.define(job, jobs, agenda);
   });
 
   agenda.start();
   resolve(jobs);
 }));
 
-router.post('/api/job', async (ctx, next) => {
+const getJobMiddleware = (jobAssertion, jobOperation) => async (ctx, next) => {
   const job = ctx.request.body;
   const jobs = await agendaReady;
-  ctx.body = await Promise.resolve(job)
-    .then(checkJobFormat)
-    .then(() => assertJobNotExists(job, jobs))
-    .then(() => defineJob(job, jobs, agenda))
-    .catch(err => {
-      ctx.status = 400;
-      return err.message;
-    });
+  ctx.body = await promiseJobOperation(job, jobs, agenda, jobAssertion, jobOperation)
+    .catch(err => ctx.throw(400, err))
   await next();
-});
+};
 
-router.put('/api/job', async (ctx, next) => {
-  const job = ctx.request.body;
-  const jobs = await agendaReady;
-  ctx.body = await Promise.resolve(job)
-    .then(checkJobFormat)
-    .then(() => assertJobAlreadyExists(job, jobs))
-    .then(() => defineJob(job, jobs, agenda))
-    .catch(err => {
-      ctx.status = 400;
-      return err.message;
-    });
-  await next();
-});
+router.post('/api/job', getJobMiddleware(jobAssertions.notExists, jobOperations.define));
+
+router.put('/api/job', getJobMiddleware(jobAssertions.allreadyExists, jobOperations.define));
 
 router.get('/api/jobs', async (ctx, next) => {
   ctx.body = await agendaReady
