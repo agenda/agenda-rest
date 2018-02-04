@@ -79,6 +79,9 @@
     "request-promise": "^4.1.1",
     "supertest": "^3.0.0"
   },
+  "engines": {
+    "node": ">=7"
+  },
   "xo": {
     "space": 2,
     "rules": {
