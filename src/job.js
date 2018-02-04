@@ -1,9 +1,35 @@
 import querystring from 'querystring';
 import {keyValues} from 'pythonic';
 import rp from 'request-promise';
-import settings from '../settings';
+import settings from './settings';
 
-const defineJob = (agenda, jobs, {name, url, method, callback} = {}) => {
+const checkJobFormat = job => {
+  if (!job.name || !job.url) {
+    throw new Error('expected request body to match {name, url}');
+  }
+};
+
+const countJobByName = async (name, jobs) => new Promise((resolve, reject) => jobs.count({name}, (err, count) => {
+  if (err) {
+    reject(err);
+  } else {
+    resolve(count);
+  }
+}));
+
+const getAssertFunction = (assertOnCount, errorOnName) => async (job, jobs) => countJobByName(job.name, jobs)
+  .then(count => {
+    if (!assertOnCount(count)) {
+      throw new Error(errorOnName(job.name));
+    }
+  });
+
+const jobAssertions = {
+  alreadyExists: getAssertFunction(count => count > 0, name => `Did not find a job named "${name}"`),
+  notExists: getAssertFunction(count => count <= 0, name => `A job named "${name}" already exist`)
+};
+
+const defineJob = ({name, url, method, callback} = {}, jobs, agenda) => {
   agenda.define(name, (job, done) => {
     const data = job.attrs.data;
     let uri = url;
@@ -57,4 +83,17 @@ const defineJob = (agenda, jobs, {name, url, method, callback} = {}) => {
   return 'job defined';
 };
 
-export default defineJob;
+const jobOperations = {
+  define: defineJob
+};
+
+const promiseJobOperation = (job, jobs, agenda, jobAssertion, jobOperation) => Promise.resolve()
+  .then(() => checkJobFormat(job))
+  .then(() => jobAssertion(job, jobs))
+  .then(() => jobOperation(job, jobs, agenda));
+
+export {
+  promiseJobOperation,
+  jobOperations,
+  jobAssertions
+};

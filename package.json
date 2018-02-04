@@ -9,7 +9,8 @@
     "lint": "xo",
     "dev": "npm run build && node $NODE_DEBUG_OPTION cli.js",
     "build": "webpack",
-    "test": "ava && npm run lint"
+    "test": "ava && npm run lint",
+    "start": "npm run build && node cli.js"
   },
   "repository": {
     "type": "git",
@@ -69,7 +70,7 @@
     "agenda": "^1.0.3",
     "babel-runtime": "^6.18.0",
     "commander": "^2.9.0",
-    "koa": "^2.0.0-alpha.7",
+    "koa": "^2.4.1",
     "koa-bodyparser": "^4.2.0",
     "koa-logger": "^3.1.0",
     "koa-router": "^7.0.1",

@@ -4,14 +4,21 @@ import logger from 'koa-logger';
 import Router from 'koa-router';
 import bodyParser from 'koa-bodyparser';
 import settings from './settings';
-import {defineJob, newCheck} from './utils';
+import {jobOperations, jobAssertions, promiseJobOperation} from './job';
 
 const app = new Koa();
 const router = new Router();
 app.use(logger());
+app.use(async (ctx, next) => next()
+  .catch(err => {
+    console.log(err);
+    ctx.body = String(err);
+    ctx.status = err.status || 500;
+  })
+);
 app.use(bodyParser({
   onerror(error, ctx) {
-    ctx.throw(`cannot parse request body, ${JSON.stringify(error)}`, 400);
+    ctx.throw(400, `cannot parse request body, ${JSON.stringify(error)}`);
   }
 }));
 app.use(router.routes());
@@ -23,26 +30,43 @@ const agenda = new Agenda({
   }
 });
 
-agenda.on('ready', () => {
+const agendaReady = new Promise(resolve => agenda.on('ready', () => {
   const jobs = agenda._mdb.collection(settings.definitions);
   jobs.find().each((error, job) => {
     if (!job) {
       return;
     }
-    defineJob(agenda, jobs, job);
+    jobOperations.define(job, jobs, agenda);
   });
 
   agenda.start();
-});
+  resolve(jobs);
+}));
 
-router.post('/api/new', async (ctx, next) => {
-  ctx.body = await Promise.resolve(ctx.request.body)
-    .then(newCheck)
-    .then(defineJob)
-    .catch(err => {
-      ctx.status = 400;
-      return err.message;
-    });
+const getJobMiddleware = (jobAssertion, jobOperation) => async (ctx, next) => {
+  const job = ctx.request.body;
+  job.name = ctx.params.jobName || job.name;
+  const jobs = await agendaReady;
+  ctx.body = await promiseJobOperation(job, jobs, agenda, jobAssertion, jobOperation)
+    .catch(err => ctx.throw(400, err));
+  await next();
+};
+
+router.post('/api/job', getJobMiddleware(jobAssertions.notExists, jobOperations.define));
+
+router.put('/api/job/:jobName', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.define));
+
+router.get('/api/job', async (ctx, next) => {
+  ctx.body = await agendaReady
+    .then(jobs => new Promise((resolve, reject) =>
+      jobs.find().toArray((err, array) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(array);
+        }
+      })
+    ));
   await next();
 });
 
@@ -110,5 +134,5 @@ const graceful = () => {
 process.on('SIGTERM', graceful);
 process.on('SIGINT', graceful);
 
-export {app, router};
+export {app, router, agendaReady};
 export default app;
