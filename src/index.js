@@ -9,7 +9,7 @@ import {jobOperations, jobAssertions, promiseJobOperation} from './job';
 const app = new Koa();
 const router = new Router();
 app.use(logger());
-app.use(async (ctx, next) => await next()
+app.use(async (ctx, next) => next()
   .catch(err => {
     console.log(err);
     ctx.body = String(err);
@@ -45,10 +45,10 @@ const agendaReady = new Promise(resolve => agenda.on('ready', () => {
 
 const getJobMiddleware = (jobAssertion, jobOperation) => async (ctx, next) => {
   const job = ctx.request.body;
-  job.name = ctx.params.jobName || job.name
+  job.name = ctx.params.jobName || job.name;
   const jobs = await agendaReady;
   ctx.body = await promiseJobOperation(job, jobs, agenda, jobAssertion, jobOperation)
-    .catch(err => ctx.throw(400, err))
+    .catch(err => ctx.throw(400, err));
   await next();
 };
 
