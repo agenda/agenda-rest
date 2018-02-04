@@ -54,7 +54,7 @@ const getJobMiddleware = (jobAssertion, jobOperation) => async (ctx, next) => {
 
 router.post('/api/jobs', getJobMiddleware(jobAssertions.notExists, jobOperations.define));
 
-router.put('/api/jobs/:jobName', getJobMiddleware(jobAssertions.allreadyExists, jobOperations.define));
+router.put('/api/jobs/:jobName', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.define));
 
 router.get('/api/jobs', async (ctx, next) => {
   ctx.body = await agendaReady

@@ -25,7 +25,7 @@ const getAssertFunction = (assertOnCount, errorOnName) => async (job, jobs) => c
   });
 
 const jobAssertions = {
-  allreadyExists: getAssertFunction(count => count > 0, name => `Did not find a job named "${name}"`),
+  alreadyExists: getAssertFunction(count => count > 0, name => `Did not find a job named "${name}"`),
   notExists: getAssertFunction(count => count <= 0, name => `A job named "${name}" already exist`)
 };
 
