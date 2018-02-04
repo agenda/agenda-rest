@@ -52,11 +52,11 @@ const getJobMiddleware = (jobAssertion, jobOperation) => async (ctx, next) => {
   await next();
 };
 
-router.post('/api/jobs', getJobMiddleware(jobAssertions.notExists, jobOperations.define));
+router.post('/api/job', getJobMiddleware(jobAssertions.notExists, jobOperations.define));
 
-router.put('/api/jobs/:jobName', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.define));
+router.put('/api/job/:jobName', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.define));
 
-router.get('/api/jobs', async (ctx, next) => {
+router.get('/api/job', async (ctx, next) => {
   ctx.body = await agendaReady
     .then(jobs => new Promise((resolve, reject) =>
       jobs.find().toArray((err, array) => {

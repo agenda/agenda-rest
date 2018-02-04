@@ -15,12 +15,12 @@ agenda-rest --dbhost localhost --dbname agenda
 ```
 ## APIs
 
-### **`/api/jobs`**
+### **`/api/job`**
 Get a list of defined jobs
 
 * Method: GET
 
-### **`/api/jobs`**
+### **`/api/job`**
 Defines a new category of jobs
 
 * Method: POST
@@ -38,7 +38,7 @@ Defines a new category of jobs
 }
 ```
 
-### **`/api/jobs/:jobName`**
+### **`/api/job/:jobName`**
 Updates definition of a job category
 
 * Method: PUT
