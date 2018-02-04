@@ -20,7 +20,7 @@ Get a list of defined jobs
 
 * Method: GET
 
-### **`/api/job`**
+### **`/api/jobs`**
 Defines a new category of jobs
 
 * Method: POST
@@ -38,7 +38,7 @@ Defines a new category of jobs
 }
 ```
 
-### **`/api/job`**
+### **`/api/jobs/:jobName`**
 Updates definition of a job category
 
 * Method: PUT

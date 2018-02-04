@@ -45,15 +45,16 @@ const agendaReady = new Promise(resolve => agenda.on('ready', () => {
 
 const getJobMiddleware = (jobAssertion, jobOperation) => async (ctx, next) => {
   const job = ctx.request.body;
+  job.name = ctx.params.jobName || job.name
   const jobs = await agendaReady;
   ctx.body = await promiseJobOperation(job, jobs, agenda, jobAssertion, jobOperation)
     .catch(err => ctx.throw(400, err))
   await next();
 };
 
-router.post('/api/job', getJobMiddleware(jobAssertions.notExists, jobOperations.define));
+router.post('/api/jobs', getJobMiddleware(jobAssertions.notExists, jobOperations.define));
 
-router.put('/api/job', getJobMiddleware(jobAssertions.allreadyExists, jobOperations.define));
+router.put('/api/jobs/:jobName', getJobMiddleware(jobAssertions.allreadyExists, jobOperations.define));
 
 router.get('/api/jobs', async (ctx, next) => {
   ctx.body = await agendaReady
