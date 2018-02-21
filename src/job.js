@@ -1,10 +1,11 @@
 import querystring from 'querystring';
+// TODO: import {promisify} from 'util';
 import {keyValues} from 'pythonic';
 import rp from 'request-promise';
 import settings from './settings';
 
-const checkJobFormat = job => {
-  if (!job.name || !job.url) {
+const getCheckJobFormatFunction = checkUrl => job => {
+  if (!job.name || (checkUrl && !job.url)) {
     throw new Error('expected request body to match {name, url}');
   }
 };
@@ -29,7 +30,7 @@ const jobAssertions = {
   notExists: getAssertFunction(count => count <= 0, name => `A job named "${name}" already exist`)
 };
 
-const defineJob = ({name, url, method, callback} = {}, jobs, agenda) => {
+const defineJob = async ({name, url, method, callback} = {}, jobs, agenda) => {
   agenda.define(name, (job, done) => {
     const data = job.attrs.data;
     let uri = url;
@@ -83,17 +84,47 @@ const defineJob = ({name, url, method, callback} = {}, jobs, agenda) => {
   return 'job defined';
 };
 
-const jobOperations = {
-  define: defineJob
+const deleteJob = async (job, jobs, agenda) => {
+  // TODO: const numRemoved = await promisify(agenda.cancel)(job);
+  const numRemoved = await new Promise((resolve, reject) => {
+    agenda.cancel(job, (error, nr) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(nr);
+      }
+    });
+  });
+  // TODO: const obj = await promisify(jobs.remove)(job);
+  const obj = await new Promise((resolve, reject) => {
+    jobs.remove(job, (error, obj) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(obj);
+      }
+    });
+  });
+  return `removed ${numRemoved} job definitions and ${obj.result.n} job instances.`;
 };
 
-const promiseJobOperation = (job, jobs, agenda, jobAssertion, jobOperation) => Promise.resolve()
-  .then(() => checkJobFormat(job))
-  .then(() => jobAssertion(job, jobs))
-  .then(() => jobOperation(job, jobs, agenda));
+const getJobOperation = (checkFunction, jobFunction) => ({check: checkFunction, fn: jobFunction});
+
+const jobOperations = {
+  define: getJobOperation(getCheckJobFormatFunction(true), defineJob),
+  delete: getJobOperation(getCheckJobFormatFunction(false), deleteJob)
+};
+
+const promiseJobOperation = async (job, jobs, agenda, jobAssertion, jobOperation) => {
+  await jobOperation.check(job);
+  await jobAssertion(job, jobs);
+  return jobOperation.fn(job, jobs, agenda);
+};
 
 export {
   promiseJobOperation,
   jobOperations,
-  jobAssertions
+  jobAssertions,
+  defineJob,
+  deleteJob
 };

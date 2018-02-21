@@ -1,27 +1,9 @@
 import Agenda from 'agenda';
-import Koa from 'koa';
-import logger from 'koa-logger';
-import Router from 'koa-router';
-import bodyParser from 'koa-bodyparser';
+import bootstrapKoaApp from './bootstrap-koa-app';
 import settings from './settings';
-import {jobOperations, jobAssertions, promiseJobOperation} from './job';
+import {defineJob, jobOperations, jobAssertions, promiseJobOperation} from './job';
 
-const app = new Koa();
-const router = new Router();
-app.use(logger());
-app.use(async (ctx, next) => next()
-  .catch(err => {
-    console.log(err);
-    ctx.body = String(err);
-    ctx.status = err.status || 500;
-  })
-);
-app.use(bodyParser({
-  onerror(error, ctx) {
-    ctx.throw(400, `cannot parse request body, ${JSON.stringify(error)}`);
-  }
-}));
-app.use(router.routes());
+const {app, router} = bootstrapKoaApp();
 
 const agenda = new Agenda({
   db: {
@@ -36,7 +18,7 @@ const agendaReady = new Promise(resolve => agenda.on('ready', () => {
     if (!job) {
       return;
     }
-    jobOperations.define(job, jobs, agenda);
+    defineJob(job, jobs, agenda);
   });
 
   agenda.start();
@@ -52,10 +34,6 @@ const getJobMiddleware = (jobAssertion, jobOperation) => async (ctx, next) => {
   await next();
 };
 
-router.post('/api/job', getJobMiddleware(jobAssertions.notExists, jobOperations.define));
-
-router.put('/api/job/:jobName', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.define));
-
 router.get('/api/job', async (ctx, next) => {
   ctx.body = await agendaReady
     .then(jobs => new Promise((resolve, reject) =>
@@ -69,6 +47,12 @@ router.get('/api/job', async (ctx, next) => {
     ));
   await next();
 });
+
+router.post('/api/job', getJobMiddleware(jobAssertions.notExists, jobOperations.define));
+
+router.del('/api/job', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.delete));
+
+router.put('/api/job/:jobName', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.define));
 
 const scheduleCheckAndFillMissing = body => {
   if (!body.name || !body.human_interval) {

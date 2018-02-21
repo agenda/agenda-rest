@@ -14,6 +14,7 @@ const config = {
   target: 'node',
   entry: {
     './dist/settings': './src/settings',
+    './dist/bootstrap-koa-app': './src/bootstrap-koa-app',
     './dist/index': './src/index'
   },
   devtool: 'source-map',
