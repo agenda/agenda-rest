@@ -1,5 +1,5 @@
 import querystring from 'querystring';
-// TODO: import {promisify} from 'util';
+import {promisify} from 'util';
 import {keyValues} from 'pythonic';
 import rp from 'request-promise';
 import settings from './settings';
@@ -70,41 +70,21 @@ const defineJob = async ({name, url, method, callback} = {}, jobs, agenda) => {
       .then(done);
   });
 
-  jobs.count({name}, (error, count) => {
-    if (error) {
-      return console.dir(error);
-    }
-    if (count < 1) {
-      jobs.insert({name, url, method, callback});
-    } else {
-      jobs.update({name}, {$set: {url, method, callback}});
-    }
-  });
+  const count = promisify(jobs.count).bind(jobs);
+  const insert = promisify(jobs.insert).bind(jobs);
+  const update = promisify(jobs.update).bind(jobs);
+
+  await count({name})
+    .then(count => count < 1 ? insert({name, url, method, callback}) : update({name}, {$set: {url, method, callback}}));
 
   return 'job defined';
 };
 
 const deleteJob = async (job, jobs, agenda) => {
-  // TODO: const numRemoved = await promisify(agenda.cancel)(job);
-  const numRemoved = await new Promise((resolve, reject) => {
-    agenda.cancel(job, (error, nr) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(nr);
-      }
-    });
-  });
-  // TODO: const obj = await promisify(jobs.remove)(job);
-  const obj = await new Promise((resolve, reject) => {
-    jobs.remove(job, (error, obj) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(obj);
-      }
-    });
-  });
+  const cancel = promisify(agenda.cancel).bind(agenda);
+  const remove = promisify(jobs.remove).bind(jobs);
+  const numRemoved = await cancel(job);
+  const obj = await remove(job);
   return `removed ${numRemoved} job definitions and ${obj.result.n} job instances.`;
 };
 
