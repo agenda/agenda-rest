@@ -3,10 +3,10 @@ const fs = require('fs');
 
 const mods = {};
 fs.readdirSync('node_modules').concat(['./settings', './index'])
-    .filter(x => ['.bin'].indexOf(x) === -1)
-    .forEach(mod => {
-      mods[mod] = 'commonjs ' + mod;
-    });
+  .filter(x => ['.bin'].indexOf(x) === -1)
+  .forEach(mod => {
+    mods[mod] = 'commonjs ' + mod;
+  });
 
 const plugins = [];
 
@@ -29,7 +29,7 @@ const config = {
   externals: mods,
   module: {
     rules: [
-            // Support for ES6 modules and the latest ES syntax.
+      // Support for ES6 modules and the latest ES syntax.
       {
         test: /\.jsx?$/,
         exclude: /(node_modules)/,

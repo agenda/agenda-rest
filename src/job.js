@@ -32,7 +32,7 @@ const jobAssertions = {
 
 const defineJob = async ({name, url, method, callback} = {}, jobs, agenda) => {
   agenda.define(name, (job, done) => {
-    const data = job.attrs.data;
+    const {attrs: {data}} = job;
     let uri = url;
     for (const [key, value] of keyValues(data.params)) {
       uri = uri.replace(`:${key}`, value);

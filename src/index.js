@@ -68,16 +68,16 @@ const scheduleCheckAndFillMissing = body => {
 };
 
 const schedulePromise = (ctx, scheduleOrEvery) => Promise.resolve(ctx.request.body)
-    .then(scheduleCheckAndFillMissing)
-    .then(body => {
-      // eslint-disable-next-line no-useless-call
-      agenda[scheduleOrEvery].apply(agenda, [body.human_interval, body.name, body.data]);
-      return `job scheduled${scheduleOrEvery === 'every' ? ' for repetition' : ''}`;
-    })
-    .catch(err => {
-      ctx.status = 400;
-      return err.message;
-    });
+  .then(scheduleCheckAndFillMissing)
+  .then(body => {
+    // eslint-disable-next-line no-useless-call
+    agenda[scheduleOrEvery].apply(agenda, [body.human_interval, body.name, body.data]);
+    return `job scheduled${scheduleOrEvery === 'every' ? ' for repetition' : ''}`;
+  })
+  .catch(err => {
+    ctx.status = 400;
+    return err.message;
+  });
 
 router.post('/api/job/schedule', async (ctx, next) => {
   ctx.body = await schedulePromise(ctx, 'schedule');

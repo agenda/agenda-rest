@@ -34,7 +34,7 @@ testAppRouter.post('/foo/cb', async (ctx, next) => {
 });
 
 const bootstrapApp = async () => {
-  const {app, jobsReady} = require('./dist/index');
+  const {app, jobsReady} = require('./dist');
   await promisify(app.listen).bind(app)(4041)
     .then(() => console.log('agenda-rest app running'));
 
