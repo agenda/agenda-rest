@@ -1,3 +1,4 @@
+import {promisify} from 'util';
 import Agenda from 'agenda';
 import bootstrapKoaApp from './bootstrap-koa-app';
 import settings from './settings';
@@ -12,45 +13,38 @@ const agenda = new Agenda({
   }
 });
 
-const agendaReady = new Promise(resolve => agenda.on('ready', () => {
-  const jobs = agenda._mdb.collection(settings.definitions);
-  jobs.find().each((error, job) => {
-    if (!job) {
-      return;
-    }
-    defineJob(job, jobs, agenda);
+const jobsReady = promisify(agenda.on).bind(agenda)('ready')
+  .then(async () => {
+    const jobs = agenda._mdb.collection(settings.definitions);
+    jobs.toArray = () => {
+      const jobsCursor = jobs.find();
+      return promisify(jobsCursor.toArray).bind(jobsCursor)();
+    };
+    await jobs.toArray()
+      .then(jobsArray => Promise.all(jobsArray.map(job => defineJob(job, jobs, agenda))));
+
+    agenda.start();
+    return jobs;
   });
 
-  agenda.start();
-  resolve(jobs);
-}));
-
-const getJobMiddleware = (jobAssertion, jobOperation) => async (ctx, next) => {
-  const job = ctx.request.body;
+const getJobMiddleware = (jobAssertion, jobOperation, errorCode = 400) => async (ctx, next) => {
+  const job = ctx.request.body || {};
   job.name = ctx.params.jobName || job.name;
-  const jobs = await agendaReady;
+  const jobs = await jobsReady;
   ctx.body = await promiseJobOperation(job, jobs, agenda, jobAssertion, jobOperation)
-    .catch(err => ctx.throw(400, err));
+    .catch(err => ctx.throw(errorCode, err));
   await next();
 };
 
 router.get('/api/job', async (ctx, next) => {
-  ctx.body = await agendaReady
-    .then(jobs => new Promise((resolve, reject) =>
-      jobs.find().toArray((err, array) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(array);
-        }
-      })
-    ));
+  ctx.body = await jobsReady
+    .then(jobs => jobs.toArray());
   await next();
 });
 
 router.post('/api/job', getJobMiddleware(jobAssertions.notExists, jobOperations.define));
 
-router.del('/api/job', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.delete));
+router.del('/api/job/:jobName', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.delete));
 
 router.put('/api/job/:jobName', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.define));
 
@@ -85,17 +79,17 @@ const schedulePromise = (ctx, scheduleOrEvery) => Promise.resolve(ctx.request.bo
       return err.message;
     });
 
-router.post('/api/schedule', async (ctx, next) => {
+router.post('/api/job/schedule', async (ctx, next) => {
   ctx.body = await schedulePromise(ctx, 'schedule');
   await next();
 });
 
-router.post('/api/every', async (ctx, next) => {
+router.post('/api/job/every', async (ctx, next) => {
   ctx.body = await schedulePromise(ctx, 'every');
   await next();
 });
 
-router.post('/api/cancel', async (ctx, next) => {
+router.post('/api/job/cancel', async (ctx, next) => {
   agenda.cancel(ctx.request.body, (error, numRemoved) => {
     if (error) {
       ctx.status = 400;
@@ -118,5 +112,5 @@ const graceful = () => {
 process.on('SIGTERM', graceful);
 process.on('SIGINT', graceful);
 
-export {app, router, agendaReady};
+export {app, router, jobsReady};
 export default app;
