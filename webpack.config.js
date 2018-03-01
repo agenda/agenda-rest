@@ -13,6 +13,7 @@ const plugins = [];
 const config = {
   target: 'node',
   entry: {
+    './dist/test': './test',
     './dist/settings': './src/settings',
     './dist/bootstrap-koa-app': './src/bootstrap-koa-app',
     './dist/index': './src/index'
