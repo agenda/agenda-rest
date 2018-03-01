@@ -1,7 +1,7 @@
 const {promisify} = require('util');
 const test = require('ava');
 const request = require('supertest');
-const bootstrapKoaApp = require('./src/bootstrap-koa-app');
+const bootstrapKoaApp = require('./dist/bootstrap-koa-app');
 
 const agendaAppUrl = 'http://localhost:4041';
 const testAppUrl = 'http://localhost:4042';
@@ -34,7 +34,7 @@ testAppRouter.post('/foo/cb', async (ctx, next) => {
 });
 
 const bootstrapApp = async () => {
-  const {app, jobsReady} = require('./src');
+  const {app, jobsReady} = require('./dist');
   await promisify(app.listen).bind(app)(4041)
     .then(() => console.log('agenda-rest app running'));
 
