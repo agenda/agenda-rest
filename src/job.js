@@ -1,8 +1,10 @@
 import querystring from 'querystring';
-import {promisify} from 'util';
+// Import {promisify} from 'util';
 import {keyValues} from 'pythonic';
 import rp from 'request-promise';
 import settings from './settings';
+
+const {promisify} = require('util');
 
 const getCheckJobFormatFunction = checkUrl => job => {
   if (!job.name || (checkUrl && !job.url)) {
