@@ -10,15 +10,7 @@ const getCheckJobFormatFunction = checkUrl => job => {
   }
 };
 
-const countJobByName = async (name, jobs) => new Promise((resolve, reject) => jobs.count({name}, (err, count) => {
-  if (err) {
-    reject(err);
-  } else {
-    resolve(count);
-  }
-}));
-
-const getAssertFunction = (assertOnCount, errorOnName) => async (job, jobs) => countJobByName(job.name, jobs)
+const getAssertFunction = (assertOnCount, errorOnName) => async (job, jobs) => jobs.count({name: job.name})
   .then(count => {
     if (!assertOnCount(count)) {
       throw new Error(errorOnName(job.name));
@@ -70,21 +62,16 @@ const defineJob = async ({name, url, method, callback} = {}, jobs, agenda) => {
       .then(done);
   });
 
-  const count = promisify(jobs.count).bind(jobs);
-  const insert = promisify(jobs.insert).bind(jobs);
-  const update = promisify(jobs.update).bind(jobs);
-
-  await count({name})
-    .then(count => count < 1 ? insert({name, url, method, callback}) : update({name}, {$set: {url, method, callback}}));
+  await jobs.count({name})
+    .then(count => count < 1 ? jobs.insert({name, url, method, callback}) : jobs.update({name}, {$set: {url, method, callback}}));
 
   return 'job defined';
 };
 
 const deleteJob = async (job, jobs, agenda) => {
   const cancel = promisify(agenda.cancel).bind(agenda);
-  const remove = promisify(jobs.remove).bind(jobs);
   const numRemoved = await cancel(job);
-  const obj = await remove(job);
+  const obj = await jobs.remove(job);
   return `removed ${numRemoved} job definitions and ${obj.result.n} job instances.`;
 };
 
