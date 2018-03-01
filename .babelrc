@@ -4,7 +4,7 @@
     "transform-util-promisify"
     ],
     "presets": [
-      ["env", {
+      ["@babel/preset-env", {
         "targets": {
           "node": "current"
         }
