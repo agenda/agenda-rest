@@ -66,7 +66,7 @@ const defineJob = ({name, url, method, callback} = {}, jobs, agenda) => {
         }
       })
       .catch(err => job.fail(`failure in callback: ${err.message}`))
-      .then(done);
+      .then(() => done());
   });
 
   jobs.count({name}, (error, count) => {
