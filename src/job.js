@@ -61,7 +61,7 @@ const defineJob = async ({name, url, method, callback} = {}, jobs, agenda) => {
         }
       })
       .catch(err => job.fail(`failure in callback: ${err.message}`))
-      .then(done);
+      .then(() => done());
   });
 
   await jobs.count({name})
