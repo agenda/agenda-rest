@@ -73,11 +73,6 @@
   "engines": {
     "node": ">=7"
   },
-  "ava": {
-    "require": [
-      "@babel/register"
-    ]
-  },
   "xo": {
     "space": 2,
     "rules": {
