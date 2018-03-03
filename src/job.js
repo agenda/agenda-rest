@@ -9,7 +9,7 @@ const getCheckJobFormatFunction = (jobProperty, defaultJob = {}) => job => {
   if (!job.name || (jobProperty && !job[jobProperty])) {
     throw new Error(`expected request body to match {name${jobProperty ? `, ${jobProperty}` : ''}}`);
   }
-  return {...defaultJob, ...job};
+  return Object.assign(defaultJob, job);
 };
 
 const doNotCheck = job => job;
@@ -85,13 +85,13 @@ const cancelJob = async (job, jobs, agenda) => {
   return `${numRemoved} jobs canceled`;
 };
 
-const defaultJobForSchedule = {
+const getDefaultJobForSchedule = () => ({
   data: {
     body: {},
     params: {},
     query: {}
   }
-};
+});
 
 const scheduleTypes = {
   now: {
@@ -131,15 +131,15 @@ const jobOperations = {
   delete: getJobOperation(getCheckJobFormatFunction(), deleteJob),
   cancel: getJobOperation(doNotCheck, cancelJob),
   now: getJobOperation(
-    getCheckJobFormatFunction(false, defaultJobForSchedule),
+    getCheckJobFormatFunction(false, getDefaultJobForSchedule()),
     getScheduleJobFunction(scheduleTypes.now)
   ),
   once: getJobOperation(
-    getCheckJobFormatFunction('interval', defaultJobForSchedule),
+    getCheckJobFormatFunction('interval', getDefaultJobForSchedule()),
     getScheduleJobFunction(scheduleTypes.once)
   ),
   every: getJobOperation(
-    getCheckJobFormatFunction('interval', defaultJobForSchedule),
+    getCheckJobFormatFunction('interval', getDefaultJobForSchedule()),
     getScheduleJobFunction(scheduleTypes.every)
   )
 };

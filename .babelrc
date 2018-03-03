@@ -1,7 +1,6 @@
 {
   "plugins": [
-    "transform-util-promisify",
-    "transform-object-rest-spread"
+    "transform-util-promisify"
     ],
     "presets": [
       ["@babel/preset-env", {
