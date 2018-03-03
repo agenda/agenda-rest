@@ -15,12 +15,12 @@ agenda-rest --dbhost localhost --dbname agenda
 ```
 ## APIs
 
-### **`/api/job`**
+### **GET `/api/job`**
 Get a list of defined jobs
 
 * Method: GET
 
-### **`/api/job`**
+### **POST `/api/job`**
 Defines a new category of jobs
 
 * Method: POST
@@ -38,13 +38,18 @@ Defines a new category of jobs
 }
 ```
 
-### **`/api/job/:jobName`**
+### **PUT `/api/job/:jobName`**
 Updates definition of a job category
 
 * Method: PUT
-* Data: same as POST
+* Data: same as POST `/api/job`
 
-### **`/api/schedule`** & **`/api/every`**
+### **DELETE `/api/job/:jobName`**
+Deletes job definition and cancels occurrences 
+
+* Method: DELETE
+
+### **POST `/api/job/once`** & **POST `/api/job/every`**
 Schedule a job for single or multiple occurrences
 
 * Method: POST
@@ -52,7 +57,7 @@ Schedule a job for single or multiple occurrences
 ```javascript
 {
     name,           // Name of the type to create the instance from
-    human_interval, // Interval in which job should be invoked
+    interval,       // Interval in which job should be invoked (human-interval, can also be a date string for 'once')
     data: {         // (optional) default: {}
         headers,    // Http headers, e.g. { Authorization: '<token>' }
         params,     // Path parameters, to replace `:param` notations in job definition's url
@@ -72,8 +77,11 @@ Callback, if present, would be invoked by the following object:
 }
 ```
 
-### **`/api/cancel`**
-Cancels any jobs matching the query
+### **POST `/api/job/now`**
+Like `once` and `every`, though without `interval`. Executes the job now.
+
+### **POST `/api/job/cancel`**
+Cancels (not to be confused with 'delete') any jobs matching the query
 
 * Method: POST
 * Data: Mongo query

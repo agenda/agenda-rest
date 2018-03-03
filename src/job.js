@@ -1,23 +1,20 @@
 import querystring from 'querystring';
+import {promisify} from 'util';
 import {keyValues} from 'pythonic';
 import rp from 'request-promise';
+import {isValidDate} from './util';
 import settings from './settings';
 
-const checkJobFormat = job => {
-  if (!job.name || !job.url) {
-    throw new Error('expected request body to match {name, url}');
+const getCheckJobFormatFunction = (jobProperty, defaultJob = {}) => job => {
+  if (!job.name || (jobProperty && !job[jobProperty])) {
+    throw new Error(`expected request body to match {name${jobProperty ? `, ${jobProperty}` : ''}}`);
   }
+  return Object.assign(defaultJob, job);
 };
 
-const countJobByName = async (name, jobs) => new Promise((resolve, reject) => jobs.count({name}, (err, count) => {
-  if (err) {
-    reject(err);
-  } else {
-    resolve(count);
-  }
-}));
+const doNotCheck = job => job;
 
-const getAssertFunction = (assertOnCount, errorOnName) => async (job, jobs) => countJobByName(job.name, jobs)
+const getAssertFunction = (assertOnCount, errorOnName) => async (job, jobs) => jobs.count({name: job.name})
   .then(count => {
     if (!assertOnCount(count)) {
       throw new Error(errorOnName(job.name));
@@ -26,12 +23,13 @@ const getAssertFunction = (assertOnCount, errorOnName) => async (job, jobs) => c
 
 const jobAssertions = {
   alreadyExists: getAssertFunction(count => count > 0, name => `Did not find a job named "${name}"`),
-  notExists: getAssertFunction(count => count <= 0, name => `A job named "${name}" already exist`)
+  notExists: getAssertFunction(count => count <= 0, name => `A job named "${name}" already exist`),
+  doNotAssert: () => true
 };
 
-const defineJob = ({name, url, method, callback} = {}, jobs, agenda) => {
+const defineJob = async ({name, url, method, callback} = {}, jobs, agenda) => {
   agenda.define(name, (job, done) => {
-    const data = job.attrs.data;
+    const {attrs: {data}} = job;
     let uri = url;
     for (const [key, value] of keyValues(data.params)) {
       uri = uri.replace(`:${key}`, value);
@@ -69,31 +67,92 @@ const defineJob = ({name, url, method, callback} = {}, jobs, agenda) => {
       .then(() => done());
   });
 
-  jobs.count({name}, (error, count) => {
-    if (error) {
-      return console.dir(error);
-    }
-    if (count < 1) {
-      jobs.insert({name, url, method, callback});
-    } else {
-      jobs.update({name}, {$set: {url, method, callback}});
-    }
-  });
+  await jobs.count({name})
+    .then(count => count < 1 ? jobs.insert({name, url, method, callback}) : jobs.update({name}, {$set: {url, method, callback}}));
 
   return 'job defined';
 };
 
-const jobOperations = {
-  define: defineJob
+const deleteJob = async (job, jobs, agenda) => {
+  const cancel = promisify(agenda.cancel).bind(agenda);
+  const numRemoved = await cancel(job);
+  const obj = await jobs.remove(job);
+  return `removed ${numRemoved} job definitions and ${obj.result.n} job instances.`;
 };
 
-const promiseJobOperation = (job, jobs, agenda, jobAssertion, jobOperation) => Promise.resolve()
-  .then(() => checkJobFormat(job))
-  .then(() => jobAssertion(job, jobs))
-  .then(() => jobOperation(job, jobs, agenda));
+const cancelJob = async (job, jobs, agenda) => {
+  const numRemoved = await promisify(agenda.cancel).bind(agenda)(job);
+  return `${numRemoved} jobs canceled`;
+};
+
+const getDefaultJobForSchedule = () => ({
+  data: {
+    body: {},
+    params: {},
+    query: {}
+  }
+});
+
+const scheduleTypes = {
+  now: {
+    method: agenda => promisify(agenda.now).bind(agenda),
+    message: 'for now',
+    getParams: job => [job.name, job.data]
+  },
+  once: {
+    method: agenda => promisify(agenda.schedule).bind(agenda),
+    message: 'for once',
+    getParams: job => {
+      // Check if interval is timestamp
+      let time = parseInt(job.interval, 10);
+      time = isNaN(time) ? job.interval : time;
+      // Check if interval is date
+      time = new Date(time);
+      time = isValidDate(time) ? time : job.interval;
+      return [time, job.name, job.data];
+    }
+  },
+  every: {
+    method: agenda => promisify(agenda.every).bind(agenda),
+    message: 'for repetition',
+    getParams: job => [job.interval, job.name, job.data]
+  }
+};
+
+const getScheduleJobFunction = scheduleType => async (job, jobs, agenda) => {
+  await scheduleType.method(agenda)(...scheduleType.getParams(job));
+  return `job scheduled ${scheduleType.message}`;
+};
+
+const getJobOperation = (checkFunction, jobFunction) => ({check: checkFunction, fn: jobFunction});
+
+const jobOperations = {
+  define: getJobOperation(getCheckJobFormatFunction('url'), defineJob),
+  delete: getJobOperation(getCheckJobFormatFunction(), deleteJob),
+  cancel: getJobOperation(doNotCheck, cancelJob),
+  now: getJobOperation(
+    getCheckJobFormatFunction(false, getDefaultJobForSchedule()),
+    getScheduleJobFunction(scheduleTypes.now)
+  ),
+  once: getJobOperation(
+    getCheckJobFormatFunction('interval', getDefaultJobForSchedule()),
+    getScheduleJobFunction(scheduleTypes.once)
+  ),
+  every: getJobOperation(
+    getCheckJobFormatFunction('interval', getDefaultJobForSchedule()),
+    getScheduleJobFunction(scheduleTypes.every)
+  )
+};
+
+const promiseJobOperation = async (job, jobs, agenda, jobAssertion, jobOperation) => {
+  job = await jobOperation.check(job);
+  await jobAssertion(job, jobs);
+  return jobOperation.fn(job, jobs, agenda);
+};
 
 export {
   promiseJobOperation,
   jobOperations,
-  jobAssertions
+  jobAssertions,
+  defineJob
 };
