@@ -48,7 +48,7 @@
     "babel-loader": "^8.0.0-beta.2",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-transform-es2015-modules-umd": "^6.24.1",
-    "babel-plugin-transform-util-promisify": "^0.1.3",
+    "babel-plugin-transform-util-promisify": "^0.2.2",
     "eslint": "^4.18.1",
     "eslint-loader": "^1.5.0",
     "eslint-plugin-babel": "^4.1.2",

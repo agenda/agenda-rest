@@ -1,10 +1,8 @@
-// Import {promisify} from 'util';
+import {promisify} from 'util';
 import Agenda from 'agenda';
 import bootstrapKoaApp from './bootstrap-koa-app';
 import settings from './settings';
 import {defineJob, jobOperations, jobAssertions, promiseJobOperation} from './job';
-
-const {promisify} = require('util');
 
 const {app, router} = bootstrapKoaApp();
 
