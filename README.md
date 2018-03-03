@@ -49,7 +49,7 @@ Deletes job definition and cancels occurrences
 
 * Method: DELETE
 
-### **POST `/api/job/schedule`** & **POST `/api/job/every`**
+### **POST `/api/job/once`** & **POST `/api/job/every`**
 Schedule a job for single or multiple occurrences
 
 * Method: POST
@@ -57,7 +57,7 @@ Schedule a job for single or multiple occurrences
 ```javascript
 {
     name,           // Name of the type to create the instance from
-    human_interval, // Interval in which job should be invoked
+    interval,       // Interval in which job should be invoked (human-interval, can also be a date string for 'once')
     data: {         // (optional) default: {}
         headers,    // Http headers, e.g. { Authorization: '<token>' }
         params,     // Path parameters, to replace `:param` notations in job definition's url
@@ -76,6 +76,9 @@ Callback, if present, would be invoked by the following object:
     response        // response from invocation
 }
 ```
+
+### **POST `/api/job/now`**
+Like `once` and `every`, though without `interval`. Executes the job now.
 
 ### **POST `/api/job/cancel`**
 Cancels (not to be confused with 'delete') any jobs matching the query
