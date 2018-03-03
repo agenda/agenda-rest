@@ -23,4 +23,6 @@ const bootstrapKoaApp = () => {
   return {app, router};
 };
 
-export default bootstrapKoaApp;
+const isValidDate = date => Object.prototype.toString.call(date) === '[object Date]' && !isNaN(date.getTime());
+
+export {bootstrapKoaApp, isValidDate};

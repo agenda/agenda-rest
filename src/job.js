@@ -2,13 +2,17 @@ import querystring from 'querystring';
 import {promisify} from 'util';
 import {keyValues} from 'pythonic';
 import rp from 'request-promise';
+import {isValidDate} from './util';
 import settings from './settings';
 
-const getCheckJobFormatFunction = checkUrl => job => {
-  if (!job.name || (checkUrl && !job.url)) {
-    throw new Error('expected request body to match {name, url}');
+const getCheckJobFormatFunction = (jobProperty, defaultJob = {}) => job => {
+  if (!job.name || (jobProperty && !job[jobProperty])) {
+    throw new Error(`expected request body to match {name${jobProperty ? `, ${jobProperty}` : ''}}`);
   }
+  return {...defaultJob, ...job};
 };
+
+const doNotCheck = job => job;
 
 const getAssertFunction = (assertOnCount, errorOnName) => async (job, jobs) => jobs.count({name: job.name})
   .then(count => {
@@ -19,7 +23,8 @@ const getAssertFunction = (assertOnCount, errorOnName) => async (job, jobs) => j
 
 const jobAssertions = {
   alreadyExists: getAssertFunction(count => count > 0, name => `Did not find a job named "${name}"`),
-  notExists: getAssertFunction(count => count <= 0, name => `A job named "${name}" already exist`)
+  notExists: getAssertFunction(count => count <= 0, name => `A job named "${name}" already exist`),
+  doNotAssert: () => true
 };
 
 const defineJob = async ({name, url, method, callback} = {}, jobs, agenda) => {
@@ -75,15 +80,72 @@ const deleteJob = async (job, jobs, agenda) => {
   return `removed ${numRemoved} job definitions and ${obj.result.n} job instances.`;
 };
 
+const cancelJob = async (job, jobs, agenda) => {
+  const numRemoved = await promisify(agenda.cancel).bind(agenda)(job);
+  return `${numRemoved} jobs canceled`;
+};
+
+const defaultJobForSchedule = {
+  data: {
+    body: {},
+    params: {},
+    query: {}
+  }
+};
+
+const scheduleTypes = {
+  now: {
+    method: agenda => promisify(agenda.now).bind(agenda),
+    message: 'for now',
+    getParams: job => [job.name, job.data]
+  },
+  once: {
+    method: agenda => promisify(agenda.schedule).bind(agenda),
+    message: 'for once',
+    getParams: job => {
+      // Check if interval is timestamp
+      let time = parseInt(job.interval, 10);
+      time = isNaN(time) ? job.interval : time;
+      // Check if interval is date
+      time = new Date(time);
+      time = isValidDate(time) ? time : job.interval;
+      return [time, job.name, job.data];
+    }
+  },
+  every: {
+    method: agenda => promisify(agenda.every).bind(agenda),
+    message: 'for repetition',
+    getParams: job => [job.interval, job.name, job.data]
+  }
+};
+
+const getScheduleJobFunction = scheduleType => async (job, jobs, agenda) => {
+  await scheduleType.method(agenda)(...scheduleType.getParams(job));
+  return `job scheduled ${scheduleType.message}`;
+};
+
 const getJobOperation = (checkFunction, jobFunction) => ({check: checkFunction, fn: jobFunction});
 
 const jobOperations = {
-  define: getJobOperation(getCheckJobFormatFunction(true), defineJob),
-  delete: getJobOperation(getCheckJobFormatFunction(false), deleteJob)
+  define: getJobOperation(getCheckJobFormatFunction('url'), defineJob),
+  delete: getJobOperation(getCheckJobFormatFunction(), deleteJob),
+  cancel: getJobOperation(doNotCheck, cancelJob),
+  now: getJobOperation(
+    getCheckJobFormatFunction(false, defaultJobForSchedule),
+    getScheduleJobFunction(scheduleTypes.now)
+  ),
+  once: getJobOperation(
+    getCheckJobFormatFunction('interval', defaultJobForSchedule),
+    getScheduleJobFunction(scheduleTypes.once)
+  ),
+  every: getJobOperation(
+    getCheckJobFormatFunction('interval', defaultJobForSchedule),
+    getScheduleJobFunction(scheduleTypes.every)
+  )
 };
 
 const promiseJobOperation = async (job, jobs, agenda, jobAssertion, jobOperation) => {
-  await jobOperation.check(job);
+  job = await jobOperation.check(job);
   await jobAssertion(job, jobs);
   return jobOperation.fn(job, jobs, agenda);
 };
@@ -92,6 +154,5 @@ export {
   promiseJobOperation,
   jobOperations,
   jobAssertions,
-  defineJob,
-  deleteJob
+  defineJob
 };

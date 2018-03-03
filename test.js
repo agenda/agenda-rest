@@ -1,7 +1,7 @@
 const {promisify} = require('util');
 const test = require('ava');
 const request = require('supertest');
-const bootstrapKoaApp = require('./src/bootstrap-koa-app');
+const {bootstrapKoaApp} = require('./src/util');
 
 const agendaAppUrl = 'http://localhost:4041';
 const testAppUrl = 'http://localhost:4042';

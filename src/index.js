@@ -1,6 +1,6 @@
 import {promisify} from 'util';
 import Agenda from 'agenda';
-import bootstrapKoaApp from './bootstrap-koa-app';
+import {bootstrapKoaApp} from './util';
 import settings from './settings';
 import {defineJob, jobOperations, jobAssertions, promiseJobOperation} from './job';
 
@@ -37,8 +37,7 @@ const getJobMiddleware = (jobAssertion, jobOperation, errorCode = 400) => async 
 };
 
 router.get('/api/job', async (ctx, next) => {
-  ctx.body = await jobsReady
-    .then(jobs => jobs.toArray());
+  ctx.body = await jobsReady.then(jobs => jobs.toArray());
   await next();
 });
 
@@ -48,58 +47,13 @@ router.del('/api/job/:jobName', getJobMiddleware(jobAssertions.alreadyExists, jo
 
 router.put('/api/job/:jobName', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.define));
 
-const scheduleCheckAndFillMissing = body => {
-  if (!body.name || !body.human_interval) {
-    throw new Error('expected request body to match {name, human_interval}');
-  }
-  if (!body.data) {
-    body.data = {};
-  }
-  if (!body.data.body) {
-    body.data.body = {};
-  }
-  if (!body.data.params) {
-    body.data.params = {};
-  }
-  if (!body.data.query) {
-    body.data.query = {};
-  }
-  return body;
-};
+router.post('/api/job/once', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.once));
 
-const schedulePromise = (ctx, scheduleOrEvery) => Promise.resolve(ctx.request.body)
-  .then(scheduleCheckAndFillMissing)
-  .then(body => {
-    // eslint-disable-next-line no-useless-call
-    agenda[scheduleOrEvery].apply(agenda, [body.human_interval, body.name, body.data]);
-    return `job scheduled${scheduleOrEvery === 'every' ? ' for repetition' : ''}`;
-  })
-  .catch(err => {
-    ctx.status = 400;
-    return err.message;
-  });
+router.post('/api/job/every', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.every));
 
-router.post('/api/job/schedule', async (ctx, next) => {
-  ctx.body = await schedulePromise(ctx, 'schedule');
-  await next();
-});
+router.post('/api/job/now', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.now));
 
-router.post('/api/job/every', async (ctx, next) => {
-  ctx.body = await schedulePromise(ctx, 'every');
-  await next();
-});
-
-router.post('/api/job/cancel', async (ctx, next) => {
-  agenda.cancel(ctx.request.body, (error, numRemoved) => {
-    if (error) {
-      ctx.status = 400;
-      ctx.body = error.message;
-      return next();
-    }
-    console.log(`${numRemoved} jobs removed`);
-    ctx.body = numRemoved;
-  });
-});
+router.post('/api/job/cancel', getJobMiddleware(jobAssertions.doNotAssert, jobOperations.cancel));
 
 const graceful = () => {
   console.log('\nShutting down gracefully...');
