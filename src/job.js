@@ -31,13 +31,20 @@ const defineJob = async ({name, url, method, callback} = {}, jobs, agenda) => {
   agenda.define(name, (job, done) => {
     const {attrs: {data}} = job;
     let uri = url;
+    // http://example.com/foo/:param1/:param2
+    // =>
+    // http://example.com/foo/value1/value2
     for (const [key, value] of keyValues(data.params)) {
       uri = uri.replace(`:${key}`, value);
     }
+    // http://example.com/foo
+    // =>
+    // http://example.com/foo?query1=value1&query2=value2
     const query = querystring.stringify(data.query);
     if (query !== '') {
       uri += `?${query}`;
     }
+    // Error if no response in timeout
     Promise.race([
       new Promise((resolve, reject) => setTimeout(() => reject(new Error('TimeOutError')), settings.timeout)),
       rp({
@@ -58,7 +65,7 @@ const defineJob = async ({name, url, method, callback} = {}, jobs, agenda) => {
             method: callback.method || 'POST',
             uri: callback.url,
             headers: callback.headers || {},
-            body: {data: data.body, response: result},
+            body: {data, response: result},
             json: true
           });
         }
