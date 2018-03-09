@@ -2,8 +2,8 @@ import querystring from 'querystring';
 import {promisify} from 'util';
 import {keyValues} from 'pythonic';
 import rp from 'request-promise';
+import settings from '../settings';
 import {isValidDate} from './util';
-import settings from './settings';
 
 const getCheckJobFormatFunction = (jobProperty, defaultJob = {}) => job => {
   if (!job.name || (jobProperty && !job[jobProperty])) {

@@ -10,7 +10,7 @@ program
   .option('-t, --timeout <timeout>', '[optional] Timeout for request duration', (n, d) => Number(n) || d, 5000)
   .parse(process.argv);
 
-const settings = require('./dist/settings');
+const settings = require('./settings');
 
 settings.dbname = program.dbname || settings.dbname;
 settings.dbhost = program.dbhost || settings.dbhost;

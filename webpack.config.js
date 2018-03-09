@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 
 const mods = {};
-fs.readdirSync('node_modules').concat(['./settings', './index'])
+fs.readdirSync('node_modules').concat(['../settings'])
   .filter(x => ['.bin'].indexOf(x) === -1)
   .forEach(mod => {
     mods[mod] = 'commonjs ' + mod;
@@ -14,7 +14,6 @@ const config = {
   target: 'node',
   entry: {
     './dist/test': './test',
-    './dist/settings': './src/settings',
     './dist/index': './src/index'
   },
   devtool: 'source-map',
