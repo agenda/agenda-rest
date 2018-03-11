@@ -103,12 +103,12 @@ const getDefaultJobForSchedule = () => ({
 
 const scheduleTypes = {
   now: {
-    method: agenda => promisify(agenda.now).bind(agenda),
+    fn: agenda => promisify(agenda.now).bind(agenda),
     message: 'for now',
     getParams: job => [job.name, job.data]
   },
   once: {
-    method: agenda => promisify(agenda.schedule).bind(agenda),
+    fn: agenda => promisify(agenda.schedule).bind(agenda),
     message: 'for once',
     getParams: job => {
       // Check if interval is timestamp
@@ -121,14 +121,14 @@ const scheduleTypes = {
     }
   },
   every: {
-    method: agenda => promisify(agenda.every).bind(agenda),
+    fn: agenda => promisify(agenda.every).bind(agenda),
     message: 'for repetition',
     getParams: job => [job.interval, job.name, job.data]
   }
 };
 
 const getScheduleJobFunction = scheduleType => async (job, jobs, agenda) => {
-  await scheduleType.method(agenda)(...scheduleType.getParams(job));
+  await scheduleType.fn(agenda)(...scheduleType.getParams(job));
   return `job scheduled ${scheduleType.message}`;
 };
 
