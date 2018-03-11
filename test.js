@@ -56,7 +56,23 @@ test.serial('POST /api/job fails without content', async t => {
 test.serial('POST /api/job succeeds when a job is specified', async t => {
   const res = await agendaAppRequest
     .post('/api/job')
-    .send({name: 'foo', url: getTestAppUrl('/foo')});
+    .send({name: 'foo', url: getTestAppUrl('/fooWrong')});
+
+  t.is(res.status, 200);
+});
+
+test.serial('PUT /api/job fails when the job does not exists', async t => {
+  const res = await agendaAppRequest
+    .put('/api/job/fooWrong')
+    .send({url: getTestAppUrl('/foo')});
+
+  t.is(res.status, 400);
+});
+
+test.serial('PUT /api/job succeeds when the job exists', async t => {
+  const res = await agendaAppRequest
+    .put('/api/job/foo')
+    .send({url: getTestAppUrl('/foo')});
 
   t.is(res.status, 200);
 });
