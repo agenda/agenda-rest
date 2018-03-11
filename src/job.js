@@ -27,7 +27,8 @@ const jobAssertions = {
   doNotAssert: () => true
 };
 
-const defineJob = async ({name, url, method, callback} = {}, jobs, agenda) => {
+const defineJob = async (job, jobs, agenda) => {
+  const {name, url, method, callback} = job;
   agenda.define(name, (job, done) => {
     const {attrs: {data}} = job;
     let uri = url;
@@ -75,7 +76,7 @@ const defineJob = async ({name, url, method, callback} = {}, jobs, agenda) => {
   });
 
   await jobs.count({name})
-    .then(count => count < 1 ? jobs.insert({name, url, method, callback}) : jobs.update({name}, {$set: {url, method, callback}}));
+    .then(count => count < 1 ? jobs.insert(job) : jobs.update({name}, {$set: job}));
 
   return 'job defined';
 };
@@ -84,7 +85,7 @@ const deleteJob = async (job, jobs, agenda) => {
   const cancel = promisify(agenda.cancel).bind(agenda);
   const numRemoved = await cancel(job);
   const obj = await jobs.remove(job);
-  return `removed ${numRemoved} job definitions and ${obj.result.n} job instances.`;
+  return `removed ${obj.result.n} job definitions and ${numRemoved} job instances.`;
 };
 
 const cancelJob = async (job, jobs, agenda) => {
@@ -134,7 +135,8 @@ const getScheduleJobFunction = scheduleType => async (job, jobs, agenda) => {
 const getJobOperation = (checkFunction, jobFunction) => ({check: checkFunction, fn: jobFunction});
 
 const jobOperations = {
-  define: getJobOperation(getCheckJobFormatFunction('url'), defineJob),
+  create: getJobOperation(getCheckJobFormatFunction('url'), defineJob),
+  update: getJobOperation(getCheckJobFormatFunction(), defineJob),
   delete: getJobOperation(getCheckJobFormatFunction(), deleteJob),
   cancel: getJobOperation(doNotCheck, cancelJob),
   now: getJobOperation(
