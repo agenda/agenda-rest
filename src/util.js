@@ -26,15 +26,19 @@ const bootstrapKoaApp = () => {
 const isValidDate = date => Object.prototype.toString.call(date) === '[object Date]' && !isNaN(date.getTime());
 
 class AsyncCounter {
-  constructor(countTo) {
+  constructor(countTimes) {
+    let currentCount = 0;
+    this.countTimes = countTimes;
     this.ready = new Promise(resolveReady => {
       this.finished = new Promise(resolveFinished => {
-        this.count = () => {
-          countTo--;
-          if (countTo === 0) {
+        const count = () => {
+          currentCount++;
+          if (currentCount === countTimes) {
             resolveFinished();
           }
+          return currentCount;
         };
+        this.count = () => this.ready.then(() => count());
         resolveReady();
       });
     });

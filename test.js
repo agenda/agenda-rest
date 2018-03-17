@@ -57,13 +57,9 @@ test.serial('PUT /api/job succeeds when the job exists', async t => {
 let counter;
 
 testAppRouter.post('/foo', async (ctx, next) => {
-  console.log('foo invoked!');
-  console.log(new Date());
   ctx.body = 'foo success';
   ctx.status = 200;
-  if (counter) {
-    counter.ready.then(() => counter.count());
-  }
+  console.log(`foo invoked! ${await counter.count()} of ${counter.countTimes} times`);
   await next();
 });
 /* TODO
@@ -94,7 +90,7 @@ test.serial('POST /api/job/now with existing foo definition invokes the foo endp
 
   t.is(res.text, 'job scheduled for now');
 
-  return counter.finished;
+  await counter.finished;
 });
 
 test.serial('POST /api/job/every with existing foo definition invokes the foo endpoint', async t => {
