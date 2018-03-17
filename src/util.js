@@ -25,4 +25,20 @@ const bootstrapKoaApp = () => {
 
 const isValidDate = date => Object.prototype.toString.call(date) === '[object Date]' && !isNaN(date.getTime());
 
-export {bootstrapKoaApp, isValidDate};
+class AsyncCounter {
+  constructor(countTo) {
+    this.ready = new Promise(resolveReady => {
+      this.finished = new Promise(resolveFinished => {
+        this.count = () => {
+          countTo--;
+          if (countTo === 0) {
+            resolveFinished();
+          }
+        };
+        resolveReady();
+      });
+    });
+  }
+}
+
+export {bootstrapKoaApp, isValidDate, AsyncCounter};

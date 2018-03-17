@@ -1,8 +1,7 @@
 const {promisify} = require('util');
 const test = require('ava');
 const request = require('supertest');
-const {range} = require('pythonic');
-const {bootstrapKoaApp} = require('./src/util');
+const {bootstrapKoaApp, AsyncCounter} = require('./src/util');
 
 const agendaAppUrl = 'http://localhost:4041';
 const testAppUrl = 'http://localhost:4042';
@@ -55,16 +54,16 @@ test.serial('PUT /api/job succeeds when the job exists', async t => {
   t.is(res.status, 200);
 });
 
-const testAppCalled = async (defineEndpoint, thisManyTimes = 1) => {
-  const calls = range(thisManyTimes).map(() => new Promise(resolve => defineEndpoint(resolve)));
-  return Promise.all(calls);
-};
+let counter;
 
-const defineEndpointFoo = done => testAppRouter.post('/foo', async (ctx, next) => {
+testAppRouter.post('/foo', async (ctx, next) => {
   console.log('foo invoked!');
+  console.log(new Date());
   ctx.body = 'foo success';
   ctx.status = 200;
-  done();
+  if (counter) {
+    counter.ready.then(() => counter.count());
+  }
   await next();
 });
 /* TODO
@@ -88,25 +87,25 @@ const defineEndpointFooCallback = done => testAppRouter.post('/foo/cb', async (c
 */
 
 test.serial('POST /api/job/now with existing foo definition invokes the foo endpoint', async t => {
-  const fooInvoked = testAppCalled(defineEndpointFoo);
+  counter = new AsyncCounter(1);
   const res = await agendaAppRequest
     .post('/api/job/now')
     .send({name: 'foo'});
 
   t.is(res.text, 'job scheduled for now');
 
-  return fooInvoked;
+  return counter.finished;
 });
 
 test.serial('POST /api/job/every with existing foo definition invokes the foo endpoint', async t => {
-  const fooInvoked = testAppCalled(defineEndpointFoo, 3);
+  counter = new AsyncCounter(3);
   const res = await agendaAppRequest
     .post('/api/job/every')
-    .send({name: 'foo', interval: '10 miliseconds'});
+    .send({name: 'foo', interval: '2 seconds'});
 
   t.is(res.text, 'job scheduled for repetition');
 
-  return fooInvoked;
+  await counter.finished;
 });
 
 test.serial('DELETE /api/job succeeds when a job is defined', async t => {
