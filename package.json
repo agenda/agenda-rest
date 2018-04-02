@@ -18,6 +18,7 @@
   },
   "files": [
     "cli.js",
+    "settings.js",
     "dist"
   ],
   "keywords": [
