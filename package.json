@@ -1,6 +1,6 @@
 {
   "name": "agenda-rest",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "Scheduling as a Service",
   "main": "./dist/index.js",
   "jsnext:main": "./src/index.js",
@@ -18,6 +18,7 @@
   },
   "files": [
     "cli.js",
+    "settings.js",
     "dist"
   ],
   "keywords": [
@@ -62,7 +63,7 @@
     "koa-bodyparser": "^4.2.0",
     "koa-logger": "^3.1.0",
     "koa-router": "^7.0.1",
-    "pythonic": "0.0.6",
+    "pythonic": "^0.2.1",
     "regenerator-runtime": "^0.11.1",
     "request": "^2.79.0",
     "request-promise": "^4.1.1",
@@ -74,6 +75,7 @@
   "xo": {
     "space": 2,
     "rules": {
+      "promise/param-names": 0,
       "max-params": [
         "error",
         5

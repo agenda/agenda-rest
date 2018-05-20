@@ -41,11 +41,11 @@ router.get('/api/job', async (ctx, next) => {
   await next();
 });
 
-router.post('/api/job', getJobMiddleware(jobAssertions.notExists, jobOperations.define));
+router.post('/api/job', getJobMiddleware(jobAssertions.notExists, jobOperations.create));
 
 router.del('/api/job/:jobName', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.delete));
 
-router.put('/api/job/:jobName', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.define));
+router.put('/api/job/:jobName', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.update));
 
 router.post('/api/job/once', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.once));
 
@@ -66,5 +66,5 @@ const graceful = () => {
 process.on('SIGTERM', graceful);
 process.on('SIGINT', graceful);
 
-export {app, router, jobsReady};
+export {app, router, agenda, jobsReady};
 export default app;

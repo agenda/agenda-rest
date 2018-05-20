@@ -27,17 +27,25 @@ const jobAssertions = {
   doNotAssert: () => true
 };
 
-const defineJob = async ({name, url, method, callback} = {}, jobs, agenda) => {
+const defineJob = async (job, jobs, agenda) => {
+  const {name, url, method, callback} = job;
   agenda.define(name, (job, done) => {
     const {attrs: {data}} = job;
     let uri = url;
+    // http://example.com/foo/:param1/:param2
+    // =>
+    // http://example.com/foo/value1/value2
     for (const [key, value] of keyValues(data.params)) {
       uri = uri.replace(`:${key}`, value);
     }
+    // http://example.com/foo
+    // =>
+    // http://example.com/foo?query1=value1&query2=value2
     const query = querystring.stringify(data.query);
     if (query !== '') {
       uri += `?${query}`;
     }
+    // Error if no response in timeout
     Promise.race([
       new Promise((resolve, reject) => setTimeout(() => reject(new Error('TimeOutError')), settings.timeout)),
       rp({
@@ -58,7 +66,7 @@ const defineJob = async ({name, url, method, callback} = {}, jobs, agenda) => {
             method: callback.method || 'POST',
             uri: callback.url,
             headers: callback.headers || {},
-            body: {data: data.body, response: result},
+            body: {data, response: result},
             json: true
           });
         }
@@ -68,7 +76,7 @@ const defineJob = async ({name, url, method, callback} = {}, jobs, agenda) => {
   });
 
   await jobs.count({name})
-    .then(count => count < 1 ? jobs.insert({name, url, method, callback}) : jobs.update({name}, {$set: {url, method, callback}}));
+    .then(count => count < 1 ? jobs.insert(job) : jobs.update({name}, {$set: job}));
 
   return 'job defined';
 };
@@ -77,7 +85,7 @@ const deleteJob = async (job, jobs, agenda) => {
   const cancel = promisify(agenda.cancel).bind(agenda);
   const numRemoved = await cancel(job);
   const obj = await jobs.remove(job);
-  return `removed ${numRemoved} job definitions and ${obj.result.n} job instances.`;
+  return `removed ${obj.result.n} job definitions and ${numRemoved} job instances.`;
 };
 
 const cancelJob = async (job, jobs, agenda) => {
@@ -95,12 +103,12 @@ const getDefaultJobForSchedule = () => ({
 
 const scheduleTypes = {
   now: {
-    method: agenda => promisify(agenda.now).bind(agenda),
+    fn: agenda => promisify(agenda.now).bind(agenda),
     message: 'for now',
     getParams: job => [job.name, job.data]
   },
   once: {
-    method: agenda => promisify(agenda.schedule).bind(agenda),
+    fn: agenda => promisify(agenda.schedule).bind(agenda),
     message: 'for once',
     getParams: job => {
       // Check if interval is timestamp
@@ -113,21 +121,22 @@ const scheduleTypes = {
     }
   },
   every: {
-    method: agenda => promisify(agenda.every).bind(agenda),
+    fn: agenda => promisify(agenda.every).bind(agenda),
     message: 'for repetition',
     getParams: job => [job.interval, job.name, job.data]
   }
 };
 
 const getScheduleJobFunction = scheduleType => async (job, jobs, agenda) => {
-  await scheduleType.method(agenda)(...scheduleType.getParams(job));
+  await scheduleType.fn(agenda)(...scheduleType.getParams(job));
   return `job scheduled ${scheduleType.message}`;
 };
 
 const getJobOperation = (checkFunction, jobFunction) => ({check: checkFunction, fn: jobFunction});
 
 const jobOperations = {
-  define: getJobOperation(getCheckJobFormatFunction('url'), defineJob),
+  create: getJobOperation(getCheckJobFormatFunction('url'), defineJob),
+  update: getJobOperation(getCheckJobFormatFunction(), defineJob),
   delete: getJobOperation(getCheckJobFormatFunction(), deleteJob),
   cancel: getJobOperation(doNotCheck, cancelJob),
   now: getJobOperation(
