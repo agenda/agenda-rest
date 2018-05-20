@@ -9,7 +9,7 @@ const getCheckJobFormatFunction = (jobProperty, defaultJob = {}) => job => {
   if (!job.name || (jobProperty && !job[jobProperty])) {
     throw new Error(`expected request body to match {name${jobProperty ? `, ${jobProperty}` : ''}}`);
   }
-  return Object.assign(defaultJob, job);
+  return {...defaultJob, ...job};
 };
 
 const doNotCheck = job => job;
