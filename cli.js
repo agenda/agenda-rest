@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 const program = require('commander');
-const {app} = require('./dist');
 
 program
   .option('-d, --dbname <dbname>', '[optional] Name of the Mongo database')
@@ -15,6 +14,8 @@ const settings = require('./settings');
 settings.dbname = program.dbname || settings.dbname;
 settings.dbhost = program.dbhost || settings.dbhost;
 settings.timeout = program.timeout || settings.timeout;
+
+const {app} = require('./dist');
 
 app.listen(program.port, () => {
   console.log(`App listening on port ${program.port}.`);
