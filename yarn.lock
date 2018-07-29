@@ -1412,13 +1412,6 @@ babel-plugin-transform-strict-mode@^6.24.1:
     babel-runtime "^6.22.0"
     babel-types "^6.24.1"
 
-babel-plugin-transform-util-promisify@^0.2.2:
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/babel-plugin-transform-util-promisify/-/babel-plugin-transform-util-promisify-0.2.2.tgz#114e19f9c6749610cffced3e303f621f2415b871"
-  dependencies:
-    babel-runtime "^6.18.0"
-    babylon "^6.18.0"
-
 babel-register@^6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-register/-/babel-register-6.26.0.tgz#6ed021173e2fcb486d7acb45c6009a856f647071"
