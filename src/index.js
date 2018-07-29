@@ -13,7 +13,7 @@ const agenda = new Agenda({
   }
 });
 
-const jobsReady = promisify(agenda.on).bind(agenda)('ready')
+const jobsReady = Promise.resolve(agenda._ready)
   .then(async () => {
     const jobs = agenda._mdb.collection(settings.definitions);
     jobs.toArray = () => {
@@ -23,7 +23,7 @@ const jobsReady = promisify(agenda.on).bind(agenda)('ready')
     await jobs.toArray()
       .then(jobsArray => Promise.all(jobsArray.map(job => defineJob(job, jobs, agenda))));
 
-    agenda.start();
+    await agenda.start();
     return jobs;
   });
 
