@@ -13,7 +13,7 @@ const agenda = new Agenda({
   }
 });
 
-const jobsReady = Promise.resolve(agenda._ready)
+const jobsReady = agenda._ready
   .then(async () => {
     const jobs = agenda._mdb.collection(settings.definitions);
     jobs.toArray = () => {
