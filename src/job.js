@@ -1,5 +1,5 @@
 import querystring from 'querystring';
-import {keyValues} from 'pythonic';
+import {items} from 'pythonic';
 import rp from 'request-promise';
 import settings from '../settings';
 import {isValidDate} from './util';
@@ -34,7 +34,7 @@ const defineJob = async (job, jobs, agenda) => {
     // http://example.com/foo/:param1/:param2
     // =>
     // http://example.com/foo/value1/value2
-    for (const [key, value] of keyValues(data.params)) {
+    for (const [key, value] of items(data.params)) {
       uri = uri.replace(`:${key}`, value);
     }
     // http://example.com/foo

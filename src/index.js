@@ -55,16 +55,5 @@ router.post('/api/job/now', getJobMiddleware(jobAssertions.alreadyExists, jobOpe
 
 router.post('/api/job/cancel', getJobMiddleware(jobAssertions.doNotAssert, jobOperations.cancel));
 
-const graceful = () => {
-  console.log('\nShutting down gracefully...');
-  agenda.stop(() => {
-    // eslint-disable-next-line unicorn/no-process-exit
-    process.exit(0);
-  });
-};
-
-process.on('SIGTERM', graceful);
-process.on('SIGINT', graceful);
-
 export {app, router, agenda, jobsReady};
 export default app;
