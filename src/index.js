@@ -29,7 +29,9 @@ const jobsReady = agenda._ready
 
 const getJobMiddleware = (jobAssertion, jobOperation, errorCode = 400) => async (ctx, next) => {
   const job = ctx.request.body || {};
-  job.name = ctx.params.jobName || job.name;
+  if (ctx.params.jobName) {
+    job.name = ctx.params.jobName;
+  }
   const jobs = await jobsReady;
   ctx.body = await promiseJobOperation(job, jobs, agenda, jobAssertion, jobOperation)
     .catch(err => ctx.throw(errorCode, err));
