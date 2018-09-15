@@ -13,7 +13,7 @@ const getCheckJobFormatFunction = (jobProperty, defaultJob = {}) => job => {
 
 const doNotCheck = job => job;
 
-const getAssertFunction = (assertOnCount, errorOnName) => async (job, jobs) => jobs.count({name: job.name})
+const getAssertFunction = (assertOnCount, errorOnName) => (job, jobs) => jobs.count({name: job.name})
   .then(count => {
     if (!assertOnCount(count)) {
       throw new Error(errorOnName(job.name));

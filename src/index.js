@@ -34,7 +34,7 @@ const getJobMiddleware = (jobAssertion, jobOperation, errorCode = 400) => async 
   }
   const jobs = await jobsReady;
   ctx.body = await promiseJobOperation(job, jobs, agenda, jobAssertion, jobOperation)
-    .catch(err => ctx.throw(errorCode, err));
+    .catch(error => ctx.throw(errorCode, error));
   await next();
 };
 
