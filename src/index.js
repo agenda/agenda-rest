@@ -13,7 +13,7 @@ const agenda = new Agenda({
   }
 });
 
-const jobsReady = promisify(agenda.on).bind(agenda)('ready')
+const jobsReady = agenda._ready
   .then(async () => {
     const jobs = agenda._mdb.collection(settings.definitions);
     jobs.toArray = () => {
@@ -23,16 +23,18 @@ const jobsReady = promisify(agenda.on).bind(agenda)('ready')
     await jobs.toArray()
       .then(jobsArray => Promise.all(jobsArray.map(job => defineJob(job, jobs, agenda))));
 
-    agenda.start();
+    await agenda.start();
     return jobs;
   });
 
 const getJobMiddleware = (jobAssertion, jobOperation, errorCode = 400) => async (ctx, next) => {
   const job = ctx.request.body || {};
-  job.name = ctx.params.jobName || job.name;
+  if (ctx.params.jobName) {
+    job.name = ctx.params.jobName;
+  }
   const jobs = await jobsReady;
   ctx.body = await promiseJobOperation(job, jobs, agenda, jobAssertion, jobOperation)
-    .catch(err => ctx.throw(errorCode, err));
+    .catch(error => ctx.throw(errorCode, error));
   await next();
 };
 
@@ -54,17 +56,6 @@ router.post('/api/job/every', getJobMiddleware(jobAssertions.alreadyExists, jobO
 router.post('/api/job/now', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.now));
 
 router.post('/api/job/cancel', getJobMiddleware(jobAssertions.doNotAssert, jobOperations.cancel));
-
-const graceful = () => {
-  console.log('\nShutting down gracefully...');
-  agenda.stop(() => {
-    // eslint-disable-next-line unicorn/no-process-exit
-    process.exit(0);
-  });
-};
-
-process.on('SIGTERM', graceful);
-process.on('SIGINT', graceful);
 
 export {app, router, agenda, jobsReady};
 export default app;

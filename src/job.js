@@ -1,6 +1,5 @@
 import querystring from 'querystring';
-import {promisify} from 'util';
-import {keyValues} from 'pythonic';
+import {items} from 'pythonic';
 import rp from 'request-promise';
 import settings from '../settings';
 import {isValidDate} from './util';
@@ -14,7 +13,7 @@ const getCheckJobFormatFunction = (jobProperty, defaultJob = {}) => job => {
 
 const doNotCheck = job => job;
 
-const getAssertFunction = (assertOnCount, errorOnName) => async (job, jobs) => jobs.count({name: job.name})
+const getAssertFunction = (assertOnCount, errorOnName) => (job, jobs) => jobs.count({name: job.name})
   .then(count => {
     if (!assertOnCount(count)) {
       throw new Error(errorOnName(job.name));
@@ -35,7 +34,7 @@ const defineJob = async (job, jobs, agenda) => {
     // http://example.com/foo/:param1/:param2
     // =>
     // http://example.com/foo/value1/value2
-    for (const [key, value] of keyValues(data.params)) {
+    for (const [key, value] of items(data.params)) {
       uri = uri.replace(`:${key}`, value);
     }
     // http://example.com/foo
@@ -82,14 +81,13 @@ const defineJob = async (job, jobs, agenda) => {
 };
 
 const deleteJob = async (job, jobs, agenda) => {
-  const cancel = promisify(agenda.cancel).bind(agenda);
-  const numRemoved = await cancel(job);
+  const numRemoved = await agenda.cancel(job);
   const obj = await jobs.remove(job);
   return `removed ${obj.result.n} job definitions and ${numRemoved} job instances.`;
 };
 
 const cancelJob = async (job, jobs, agenda) => {
-  const numRemoved = await promisify(agenda.cancel).bind(agenda)(job);
+  const numRemoved = await agenda.cancel(job);
   return `${numRemoved} jobs canceled`;
 };
 
@@ -103,12 +101,12 @@ const getDefaultJobForSchedule = () => ({
 
 const scheduleTypes = {
   now: {
-    fn: agenda => promisify(agenda.now).bind(agenda),
+    fn: agenda => agenda.now.bind(agenda),
     message: 'for now',
     getParams: job => [job.name, job.data]
   },
   once: {
-    fn: agenda => promisify(agenda.schedule).bind(agenda),
+    fn: agenda => agenda.schedule.bind(agenda),
     message: 'for once',
     getParams: job => {
       // Check if interval is timestamp
@@ -121,7 +119,7 @@ const scheduleTypes = {
     }
   },
   every: {
-    fn: agenda => promisify(agenda.every).bind(agenda),
+    fn: agenda => agenda.every.bind(agenda),
     message: 'for repetition',
     getParams: job => [job.interval, job.name, job.data]
   }

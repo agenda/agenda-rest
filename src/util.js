@@ -7,11 +7,11 @@ const bootstrapKoaApp = () => {
   const app = new Koa();
   const router = new Router();
   app.use(logger());
-  app.use(async (ctx, next) => next()
-    .catch(err => {
-      console.dir(err);
-      ctx.body = String(err);
-      ctx.status = err.status || 500;
+  app.use((ctx, next) => next()
+    .catch(error => {
+      console.dir(error);
+      ctx.body = String(error);
+      ctx.status = error.status || 500;
     })
   );
   app.use(bodyParser({

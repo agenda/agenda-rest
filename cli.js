@@ -15,8 +15,20 @@ settings.dbname = program.dbname || settings.dbname;
 settings.dbhost = program.dbhost || settings.dbhost;
 settings.timeout = program.timeout || settings.timeout;
 
-const {app} = require('./dist');
+const {app, agenda} = require('./dist');
 
-app.listen(program.port, () => {
+const server = app.listen(program.port, () => {
   console.log(`App listening on port ${program.port}.`);
 });
+
+const graceful = () => {
+  console.log('\nClosing server...');
+  server.close();
+  console.log('Shutting down gracefully...');
+  agenda.stop(() => {
+    process.exit(0);
+  });
+};
+
+process.on('SIGTERM', graceful);
+process.on('SIGINT', graceful);

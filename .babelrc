@@ -1,11 +1,10 @@
 {
   "plugins": [
-    "transform-util-promisify"
     ],
     "presets": [
       ["@babel/preset-env", {
         "targets": {
-          "node": "7.10"
+          "node": "8.10"
         }
       }]
     ]
