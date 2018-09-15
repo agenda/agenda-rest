@@ -22,11 +22,10 @@ const server = app.listen(program.port, () => {
 });
 
 const graceful = () => {
-  console.log('\nShutting down gracefully...');
+  console.log('\nClosing server...');
+  server.close();
+  console.log('Shutting down gracefully...');
   agenda.stop(() => {
-    console.log('\nClosing server...');
-    server.close();
-    // eslint-disable-next-line unicorn/no-process-exit
     process.exit(0);
   });
 };
