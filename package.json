@@ -77,6 +77,7 @@
     "space": 2,
     "rules": {
       "promise/param-names": 0,
+      "promise/prefer-await-to-then": 0,
       "max-params": [
         "error",
         5
