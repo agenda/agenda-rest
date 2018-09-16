@@ -38,24 +38,37 @@ const getJobMiddleware = (jobAssertion, jobOperation, errorCode = 400) => async 
   await next();
 };
 
-router.get('/api/job', async (ctx, next) => {
+const listJobs = async (ctx, next) => {
   ctx.body = await jobsReady.then(jobs => jobs.toArray());
   await next();
-});
+};
+const createJob = getJobMiddleware(jobAssertions.notExists, jobOperations.create);
+const removeJob = getJobMiddleware(jobAssertions.alreadyExists, jobOperations.delete);
+const updateJob = getJobMiddleware(jobAssertions.alreadyExists, jobOperations.update);
+const runJobOnce = getJobMiddleware(jobAssertions.alreadyExists, jobOperations.once);
+const runJobEvery = getJobMiddleware(jobAssertions.alreadyExists, jobOperations.every);
+const runJobNow = getJobMiddleware(jobAssertions.alreadyExists, jobOperations.now);
+const cancelJobs = getJobMiddleware(jobAssertions.doNotAssert, jobOperations.cancel);
 
-router.post('/api/job', getJobMiddleware(jobAssertions.notExists, jobOperations.create));
+// v1
+router.get('/api/v1/job', listJobs);
+router.post('/api/v1/job', createJob);
+router.del('/api/v1/job/:jobName', removeJob);
+router.put('/api/v1/job/:jobName', updateJob);
+router.post('/api/v1/job/once', runJobOnce);
+router.post('/api/v1/job/every', runJobEvery);
+router.post('/api/v1/job/now', runJobNow);
+router.post('/api/v1/job/cancel', cancelJobs);
 
-router.del('/api/job/:jobName', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.delete));
-
-router.put('/api/job/:jobName', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.update));
-
-router.post('/api/job/once', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.once));
-
-router.post('/api/job/every', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.every));
-
-router.post('/api/job/now', getJobMiddleware(jobAssertions.alreadyExists, jobOperations.now));
-
-router.post('/api/job/cancel', getJobMiddleware(jobAssertions.doNotAssert, jobOperations.cancel));
+// latest
+router.get('/api/job', listJobs);
+router.post('/api/job', createJob);
+router.del('/api/job/:jobName', removeJob);
+router.put('/api/job/:jobName', updateJob);
+router.post('/api/job/once', runJobOnce);
+router.post('/api/job/every', runJobEvery);
+router.post('/api/job/now', runJobNow);
+router.post('/api/job/cancel', cancelJobs);
 
 export {app, router, agenda, jobsReady};
 export default app;
