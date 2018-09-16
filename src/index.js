@@ -50,7 +50,7 @@ const runJobEvery = getJobMiddleware(jobAssertions.alreadyExists, jobOperations.
 const runJobNow = getJobMiddleware(jobAssertions.alreadyExists, jobOperations.now);
 const cancelJobs = getJobMiddleware(jobAssertions.doNotAssert, jobOperations.cancel);
 
-// v1
+// V1
 router.get('/api/v1/job', listJobs);
 router.post('/api/v1/job', createJob);
 router.del('/api/v1/job/:jobName', removeJob);
@@ -60,7 +60,7 @@ router.post('/api/v1/job/every', runJobEvery);
 router.post('/api/v1/job/now', runJobNow);
 router.post('/api/v1/job/cancel', cancelJobs);
 
-// latest
+// Latest
 router.get('/api/job', listJobs);
 router.post('/api/job', createJob);
 router.del('/api/job/:jobName', removeJob);
