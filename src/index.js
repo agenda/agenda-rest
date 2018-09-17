@@ -50,16 +50,6 @@ const runJobEvery = getJobMiddleware(jobAssertions.alreadyExists, jobOperations.
 const runJobNow = getJobMiddleware(jobAssertions.alreadyExists, jobOperations.now);
 const cancelJobs = getJobMiddleware(jobAssertions.doNotAssert, jobOperations.cancel);
 
-// V1
-router.get('/api/v1/job', listJobs);
-router.post('/api/v1/job', createJob);
-router.del('/api/v1/job/:jobName', removeJob);
-router.put('/api/v1/job/:jobName', updateJob);
-router.post('/api/v1/job/once', runJobOnce);
-router.post('/api/v1/job/every', runJobEvery);
-router.post('/api/v1/job/now', runJobNow);
-router.post('/api/v1/job/cancel', cancelJobs);
-
 // Latest
 router.get('/api/job', listJobs);
 router.post('/api/job', createJob);
@@ -69,6 +59,22 @@ router.post('/api/job/once', runJobOnce);
 router.post('/api/job/every', runJobEvery);
 router.post('/api/job/now', runJobNow);
 router.post('/api/job/cancel', cancelJobs);
+
+const redirect = (route, status=307) => async (ctx, next) => {
+  ctx.status = status;
+  ctx.redirect(route);
+  await next();
+};
+
+// V1
+router.get('/api/v1/job', redirect('/api/job'));
+router.post('/api/v1/job', redirect('/api/job'));
+router.del('/api/v1/job/:jobName', redirect('/api/job/:jobName'));
+router.put('/api/v1/job/:jobName', redirect('/api/job/:jobName'));
+router.post('/api/v1/job/once', redirect('/api/job/once'));
+router.post('/api/v1/job/every', redirect('/api/job/every'));
+router.post('/api/v1/job/now', redirect('/api/job/now'));
+router.post('/api/v1/job/cancel', redirect('/api/job/cancel'));
 
 export {app, router, agenda, jobsReady};
 export default app;
