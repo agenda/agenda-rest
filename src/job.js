@@ -13,7 +13,7 @@ const getCheckJobFormatFunction = (jobProperty, defaultJob = {}) => job => {
 
 const doNotCheck = job => job;
 
-const getAssertFunction = (assertOnCount, errorOnName) => (job, jobs) => jobs.count({name: job.name})
+const getAssertFunction = (assertOnCount, errorOnName) => (job, jobs) => jobs.countDocuments({name: job.name})
   .then(count => {
     if (!assertOnCount(count)) {
       throw new Error(errorOnName(job.name));
@@ -74,8 +74,8 @@ const defineJob = async (job, jobs, agenda) => {
       .then(() => done());
   });
 
-  await jobs.count({name})
-    .then(count => count < 1 ? jobs.insert(job) : jobs.update({name}, {$set: job}));
+  await jobs.countDocuments({name})
+    .then(count => count < 1 ? jobs.insertOne(job) : jobs.updateOne({name}, {$set: job}));
 
   return 'job defined';
 };
