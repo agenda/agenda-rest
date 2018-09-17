@@ -60,7 +60,7 @@ router.post('/api/job/every', runJobEvery);
 router.post('/api/job/now', runJobNow);
 router.post('/api/job/cancel', cancelJobs);
 
-const redirect = (route, status=307) => async (ctx, next) => {
+const redirect = (route, status = 307) => async (ctx, next) => {
   ctx.status = status;
   ctx.redirect(route);
   await next();
