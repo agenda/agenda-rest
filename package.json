@@ -68,7 +68,7 @@
     "regenerator-runtime": "^0.13.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
-    "supertest": "^3.3.0"
+    "supertest": "^4.0.0"
   },
   "engines": {
     "node": ">=8"
