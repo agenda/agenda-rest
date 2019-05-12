@@ -52,7 +52,7 @@
     "eslint-loader": "2.1.2",
     "eslint-plugin-babel": "5.3.0",
     "eslint-plugin-node": "9.0.1",
-    "webpack": "4.30.0",
+    "webpack": "4.31.0",
     "webpack-cli": "3.3.2",
     "xo": "0.23.0"
   },
