@@ -42,8 +42,8 @@
   "homepage": "https://github.com/agenda/agenda-rest#README",
   "devDependencies": {
     "@babel/cli": "7.5.0",
-    "@babel/core": "7.5.0",
-    "@babel/preset-env": "7.5.3",
+    "@babel/core": "7.5.4",
+    "@babel/preset-env": "7.5.4",
     "@babel/register": "7.4.4",
     "ava": "0.25.0",
     "babel-eslint": "10.0.2",
