@@ -46,7 +46,7 @@
     "@babel/preset-env": "7.5.5",
     "@babel/register": "7.5.5",
     "ava": "0.25.0",
-    "babel-eslint": "10.0.2",
+    "babel-eslint": "10.0.3",
     "babel-loader": "8.0.6",
     "eslint": "5.16.0",
     "eslint-loader": "3.0.0",
