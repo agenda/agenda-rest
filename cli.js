@@ -21,14 +21,13 @@ const server = app.listen(program.port, () => {
   console.log(`App listening on port ${program.port}.`);
 });
 
-const graceful = () => {
+async function graceful() {
   console.log('\nClosing server...');
-  server.close();
+  await server.close();
   console.log('Shutting down gracefully...');
-  agenda.stop(() => {
-    process.exit(0);
-  });
-};
+  await agenda.stop();
+  process.exit(0);
+}
 
 process.on('SIGTERM', graceful);
 process.on('SIGINT', graceful);
