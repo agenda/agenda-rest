@@ -28,8 +28,9 @@ const jobsReady = agenda._ready
   });
 
 const getJobMiddleware = (jobAssertion, jobOperation, errorCode = 400) => async (ctx, next) => {
-  if(settings.appId && ctx.request.headers['x-api-key'] != settings.appId)
+  if (settings.appId && ctx.request.headers['x-api-key'] !== settings.appId) {
     ctx.throw(401, 'Unauthorized');
+  }
   const job = ctx.request.body || {};
   if (ctx.params.jobName) {
     job.name = ctx.params.jobName;
@@ -41,8 +42,9 @@ const getJobMiddleware = (jobAssertion, jobOperation, errorCode = 400) => async 
 };
 
 const listJobs = async (ctx, next) => {
-  if(settings.appId && ctx.request.headers['x-api-key'] != settings.appId)
+  if (settings.appId && ctx.request.headers['x-api-key'] !== settings.appId) {
     ctx.throw(401, 'Unauthorized');
+  }
   ctx.body = await jobsReady.then(jobs => jobs.toArray());
   await next();
 };
