@@ -6,6 +6,7 @@ program
   .option('-d, --dbname <dbname>', '[optional] Name of the Mongo database')
   .option('-h, --dbhost <dbhost>', '[optional] Mongo instance\'s IP')
   .option('-p, --port <port>', '[optional] Server port, default 4040', (n, d) => Number(n) || d, 4040)
+  .option('-k, --key <key>', '[optional] apikey')
   .option('-t, --timeout <timeout>', '[optional] Timeout for request duration', (n, d) => Number(n) || d, 5000)
   .parse(process.argv);
 
@@ -13,6 +14,7 @@ const settings = require('./settings');
 
 settings.dbname = program.dbname || settings.dbname;
 settings.dbhost = program.dbhost || settings.dbhost;
+settings.appId = program.key || settings.appId;
 settings.timeout = program.timeout || settings.timeout;
 
 const {app, agenda} = require('./dist');
