@@ -3,7 +3,7 @@ let dbhost = process.env.DB_HOST || 'localhost';
 let collection = 'agendaJobs';
 let definitions = 'jobDefinitions';
 let timeout = 5000;
-let appId = "";
+let appId;
 const settings = {
   get agendaMongoUrl() {
     return `mongodb://${dbhost}/${dbname}`;
