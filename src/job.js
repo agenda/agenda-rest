@@ -8,6 +8,7 @@ const getCheckJobFormatFunction = (jobProperty, defaultJob = {}) => job => {
   if (!job.name || (jobProperty && !job[jobProperty])) {
     throw new Error(`expected request body to match {name${jobProperty ? `, ${jobProperty}` : ''}}`);
   }
+
   return {...defaultJob, ...job};
 };
 
@@ -37,6 +38,7 @@ const defineJob = async (job, jobs, agenda) => {
     for (const [key, value] of items(data.params)) {
       uri = uri.replace(`:${key}`, value);
     }
+
     // http://example.com/foo
     // =>
     // http://example.com/foo?query1=value1&query2=value2
@@ -44,6 +46,7 @@ const defineJob = async (job, jobs, agenda) => {
     if (query !== '') {
       uri += `?${query}`;
     }
+
     // Error if no response in timeout
     Promise.race([
       new Promise((resolve, reject) => setTimeout(() => reject(new Error('TimeOutError')), settings.timeout)),

@@ -3,7 +3,7 @@ const fs = require('fs');
 
 const mods = {};
 fs.readdirSync('node_modules').concat(['../settings'])
-  .filter(x => ['.bin'].indexOf(x) === -1)
+  .filter(x => !['.bin'].includes(x))
   .forEach(mod => {
     mods[mod] = 'commonjs ' + mod;
   });

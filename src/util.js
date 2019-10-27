@@ -29,6 +29,7 @@ const repeatPerKey = (keys = {}) => count => (key, fn) => () => {
   if (!(key in keys)) {
     keys[key] = 0;
   }
+
   if (keys[key] < count) {
     fn();
     keys[key]++;
@@ -48,8 +49,10 @@ class AsyncCounter {
           if (currentCount === countTimes) {
             resolveFinished();
           }
+
           return currentCount;
         };
+
         this.count = () => this.ready.then(() => count());
         resolveReady();
       });

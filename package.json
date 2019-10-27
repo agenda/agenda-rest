@@ -52,23 +52,24 @@
     "eslint-loader": "3.0.2",
     "eslint-plugin-babel": "5.3.0",
     "eslint-plugin-node": "10.0.0",
+    "supertest": "4.0.2",
     "webpack": "4.41.2",
     "webpack-cli": "3.3.4",
-    "xo": "0.23.0"
+    "xo": "0.25.3"
   },
   "dependencies": {
     "agenda": "^2.0.2",
+    "async-counter": "^1.1.0",
     "babel-runtime": "^6.26.0",
-    "commander": "^3.0.0",
-    "koa": "^2.5.3",
+    "commander": "^3.0.2",
+    "koa": "^2.10.0",
     "koa-bodyparser": "^4.2.1",
-    "koa-logger": "^3.2.0",
+    "koa-logger": "^3.2.1",
     "koa-router": "^7.4.0",
-    "pythonic": "^1.0.1",
-    "regenerator-runtime": "^0.13.0",
+    "pythonic": "^2.0.3",
+    "regenerator-runtime": "^0.13.3",
     "request": "^2.88.0",
-    "request-promise": "^4.2.2",
-    "supertest": "^4.0.0"
+    "request-promise": "^4.2.4"
   },
   "engines": {
     "node": ">=8"
@@ -76,6 +77,8 @@
   "xo": {
     "space": 2,
     "rules": {
+      "ava/no-inline-assertions": 0,
+      "import/namespace": 0,
       "promise/param-names": 0,
       "promise/prefer-await-to-then": 0,
       "max-params": [
@@ -86,9 +89,6 @@
         "error",
         5
       ]
-    },
-    "envs": [
-      "node"
-    ]
+    }
   }
 }

@@ -20,6 +20,7 @@ const jobsReady = agenda._ready
       const jobsCursor = jobs.find();
       return promisify(jobsCursor.toArray).bind(jobsCursor)();
     };
+
     await jobs.toArray()
       .then(jobsArray => Promise.all(jobsArray.map(job => defineJob(job, jobs, agenda))));
 
@@ -31,10 +32,12 @@ const getJobMiddleware = (jobAssertion, jobOperation, errorCode = 400) => async 
   if (settings.appId && ctx.request.headers['x-api-key'] !== settings.appId) {
     ctx.throw(403, 'Unauthorized');
   }
+
   const job = ctx.request.body || {};
   if (ctx.params.jobName) {
     job.name = ctx.params.jobName;
   }
+
   const jobs = await jobsReady;
   ctx.body = await promiseJobOperation(job, jobs, agenda, jobAssertion, jobOperation)
     .catch(error => ctx.throw(errorCode, error));
@@ -45,9 +48,11 @@ const listJobs = async (ctx, next) => {
   if (settings.appId && ctx.request.headers['x-api-key'] !== settings.appId) {
     ctx.throw(403, 'Unauthorized');
   }
+
   ctx.body = await jobsReady.then(jobs => jobs.toArray());
   await next();
 };
+
 const createJob = getJobMiddleware(jobAssertions.notExists, jobOperations.create);
 const removeJob = getJobMiddleware(jobAssertions.alreadyExists, jobOperations.delete);
 const updateJob = getJobMiddleware(jobAssertions.alreadyExists, jobOperations.update);
