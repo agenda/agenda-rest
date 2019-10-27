@@ -5889,9 +5889,9 @@ punycode@^2.1.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
 
-pythonic@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/pythonic/-/pythonic-1.0.1.tgz#fa7d6172b4c0a89a18e61a93260e404d2b0b3637"
+pythonic@^2.0.0:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/pythonic/-/pythonic-2.0.3.tgz#cef4e6fd74663ea839ae41a7ad4c9aaa03767f4d"
 
 qs@^6.5.1, qs@^6.5.2, qs@~6.5.2:
   version "6.5.2"

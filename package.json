@@ -64,7 +64,7 @@
     "koa-bodyparser": "^4.2.1",
     "koa-logger": "^3.2.0",
     "koa-router": "^7.4.0",
-    "pythonic": "^1.0.1",
+    "pythonic": "^2.0.0",
     "regenerator-runtime": "^0.13.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
