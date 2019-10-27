@@ -54,7 +54,7 @@
     "eslint-plugin-node": "10.0.0",
     "webpack": "4.41.2",
     "webpack-cli": "3.3.4",
-    "xo": "0.23.0"
+    "xo": "0.25.3"
   },
   "dependencies": {
     "agenda": "^2.0.2",
