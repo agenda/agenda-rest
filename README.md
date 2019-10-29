@@ -8,11 +8,28 @@ Scheduling as a Service, based on [Agenda](https://github.com/agenda/agenda)
 
 Assuming all job types could be thought of as REST endpoints, scheduling could be offered as a service. `agenda-rest` does just that, introduce a URL, name it, agenda-rest will call it on the times that you specify.
 
-## Usage
+## Installation
+Install agenda-rest as a global package
 ```bash
 npm install -g agenda-rest
+```
+
+## Usage
+To launch the agenda-rest server, use the command line interface specifying the database host name and the database name
+```bash
 agenda-rest --dbhost localhost --dbname agenda
 ```
+
+## Command Line Interface options
+
+| Options       	 | Description                                                                                                             	|
+|---------------	 |-------------------------------------------------------------------------------------------------------------------------	|
+| **`-d, --dbname`** | [optional] Name of the Mongo database, default is **agenda**                                                            	|
+| **`-h, --dbhost`** | [optional] Mongo instance's IP or domain name, default is **localhost**                                                  |
+| **`-p, --port`**	 | [optional] agenda-rest server port, default is **4040**                                                                  |
+| **`-k, --key`**  	 | [optional] x-api-key to be expected in headers. If not specified, access to agenda-rest server would be unauthenticated 	|
+| **`-t, --timeout`**| [optional] Timeout for request duration, default is **5000 ms**                                                          |
+
 ## APIs
 
 ### **GET `/api/job`**
