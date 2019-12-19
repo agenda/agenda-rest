@@ -26,6 +26,7 @@ agenda-rest --dbhost localhost --dbname agenda
 |---------------	 |-------------------------------------------------------------------------------------------------------------------------	|
 | **`-d, --dbname`** | [optional] Name of the Mongo database, default is **agenda**                                                            	|
 | **`-h, --dbhost`** | [optional] Mongo instance's IP or domain name, default is **localhost**                                                  |
+| **`-u, --dburi`** | [optional] Full Mongo connection string. If specified, will override **--dbhost**, **--dbname**                                                            	|
 | **`-p, --port`**	 | [optional] agenda-rest server port, default is **4040**                                                                  |
 | **`-k, --key`**  	 | [optional] x-api-key to be expected in headers. If not specified, access to agenda-rest server would be unauthenticated 	|
 | **`-t, --timeout`**| [optional] Timeout for request duration, default is **5000 ms**                                                          |
