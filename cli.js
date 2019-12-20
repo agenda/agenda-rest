@@ -3,6 +3,7 @@
 const program = require('commander');
 
 program
+  .option('-u, --dburi <dburi>', '[optional] Full Mongo connection string')
   .option('-d, --dbname <dbname>', '[optional] Name of the Mongo database')
   .option('-h, --dbhost <dbhost>', '[optional] Mongo instance\'s IP')
   .option('-p, --port <port>', '[optional] Server port, default 4040', (n, d) => Number(n) || d, 4040)
@@ -12,6 +13,7 @@ program
 
 const settings = require('./settings');
 
+settings.dburi = program.dburi || settings.dburi;
 settings.dbname = program.dbname || settings.dbname;
 settings.dbhost = program.dbhost || settings.dbhost;
 settings.appId = program.key || settings.appId;

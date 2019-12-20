@@ -1,5 +1,6 @@
 let dbname = process.env.DB_NAME || 'agenda';
 let dbhost = process.env.DB_HOST || 'localhost';
+let dburi = process.env.DB_URI || null;
 let appId = process.env.API_KEY;
 let collection = 'agendaJobs';
 let definitions = 'jobDefinitions';
@@ -7,13 +8,19 @@ let timeout = 5000;
 
 const settings = {
   get agendaMongoUrl() {
-    return `mongodb://${dbhost}/${dbname}`;
+    return dburi ? dburi : `mongodb://${dbhost}/${dbname}`;
   },
   get dbname() {
     return dbname;
   },
   set dbname(value) {
     dbname = value;
+  },
+  get dburi() {
+    return dburi;
+  },
+  set dburi(value) {
+    dburi = value;
   },
   get dbhost() {
     return dbhost;
