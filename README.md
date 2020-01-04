@@ -33,6 +33,10 @@ agenda-rest --dbhost localhost --dbname agenda
 
 ## APIs
 
+## API Documentation 
+ API Documentation (Postman Generated) available at https://explore.postman.com/templates/4883/agenda-rest  
+
+
 ### **GET `/api/job`**
 Get a list of defined jobs
 
