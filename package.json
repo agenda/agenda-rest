@@ -43,7 +43,7 @@
   "devDependencies": {
     "@babel/cli": "7.8.0",
     "@babel/core": "7.8.0",
-    "@babel/preset-env": "7.8.0",
+    "@babel/preset-env": "7.8.2",
     "@babel/register": "7.8.0",
     "ava": "2.4.0",
     "babel-loader": "8.0.6",
