@@ -7657,10 +7657,10 @@ xo-init@^0.7.0:
     the-argv "^1.0.0"
     write-pkg "^3.1.0"
 
-xo@0.25.3:
-  version "0.25.3"
-  resolved "https://registry.yarnpkg.com/xo/-/xo-0.25.3.tgz#feb624c35943f3575ad4668cd0b7b74a1d4884d2"
-  integrity sha512-125on+kPp6oi+EfoAajJ58cGLxIurZqWrehhdqoApWXpano9GL5D0ElcSlbG7UeYAfmNSwKJGTxHoLsHLhrZqg==
+xo@0.25.4:
+  version "0.25.4"
+  resolved "https://registry.yarnpkg.com/xo/-/xo-0.25.4.tgz#71b1e21a96eeece7f70964aaf19cbbb3f0baeca3"
+  integrity sha512-C/JImco62WWSKh0ekzkmyMgv6qePxaZEEyKzYpDdkYqdoGAenAinmP/euaxy+mXb4FSp7eijU0+pvl/f8Bve0A==
   dependencies:
     arrify "^2.0.1"
     debug "^4.1.0"
