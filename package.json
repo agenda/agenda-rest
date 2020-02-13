@@ -53,7 +53,7 @@
     "xo": "0.25.4"
   },
   "dependencies": {
-    "agenda": "^2.0.2",
+    "agenda": "^3.0.0",
     "async-counter": "^1.1.0",
     "babel-runtime": "^6.26.0",
     "commander": "^4.0.0",
