@@ -63,7 +63,7 @@ Updates definition of a job category
 * Data: same as POST `/api/job`
 
 ### **DELETE `/api/job/:jobName`**
-Deletes job definition and cancels occurrences 
+Deletes job definition and cancels occurrences
 
 * Method: DELETE
 
@@ -78,8 +78,8 @@ Schedule a job for single or multiple occurrences
     interval,       // Interval in which job should be invoked (human-interval, can also be a date string for 'once')
     data: {         // (optional) default: {}
         headers,    // Http headers, e.g. { Authorization: '<token>' }
-        params,     // Path parameters, to replace `:param` notations in job definition's url
-        query,      // Query parameters (?foo=bar&baz=qux)
+        params,     // An object i.e. { param1: 'value1' } used to replace path parameters `http://mydommain.com:3333/test/:param1` => `http://mydommain.com:3333/test/value1` notations in the job definition's url.
+        query,      // An object i.e. { foo: 'bar', baz: 'qux' } used to create query parameters (http://mydommain.com:3333/test/value1?foo=bar&baz=qux)
         body        // Accompanying data sent along the request
     }
 }

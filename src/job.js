@@ -32,34 +32,44 @@ const defineJob = async (job, jobs, agenda) => {
   agenda.define(name, (job, done) => {
     const {attrs: {data}} = job;
     let uri = url;
-    // http://example.com/foo/:param1/:param2
+    // http://example.com:8888/foo/:param1/:param2
     // =>
-    // http://example.com/foo/value1/value2
-    for (const [key, value] of items(data.params)) {
-      uri = uri.replace(`:${key}`, value);
+    // http://example.com:8888/foo/value1/value2
+    if (url.indexOf('/:') > 0 && data.params) {
+      const protoDomain = url.slice(0, url.indexOf('/:'));
+      let path = url.slice(url.indexOf('/:'));
+      for (const [key, value] of items(data.params)) {
+        path = path.replace(`:${key}`, value);
+      }
+
+      uri = `${protoDomain}${path}`;
     }
 
     // http://example.com/foo
     // =>
     // http://example.com/foo?query1=value1&query2=value2
-    const query = querystring.stringify(data.query);
-    if (query !== '') {
-      uri += `?${query}`;
+    if (data.query) {
+      const query = querystring.stringify(data.query);
+      if (query !== '') {
+        uri += `?${query}`;
+      }
     }
+
+    const options = {
+      method: method || 'POST',
+      uri,
+      body: data.body,
+      headers: data.headers || {},
+      json: true
+    };
 
     // Error if no response in timeout
     Promise.race([
       new Promise((resolve, reject) => setTimeout(() => reject(new Error('TimeOutError')), settings.timeout)),
-      rp({
-        method: method || 'POST',
-        uri,
-        body: data.body,
-        headers: data.headers || {},
-        json: true
-      })
+      rp(options)
     ])
       .catch(err => {
-        job.fail(err.message);
+        job.fail(`options: ${JSON.stringify(options)} message: ${err.message}`);
         return {error: err.message};
       })
       .then(result => {
