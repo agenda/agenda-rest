@@ -6,7 +6,11 @@ import {isValidDate} from './util';
 
 const getCheckJobFormatFunction = (jobProperty, defaultJob = {}) => job => {
   if (!job.name || (jobProperty && !job[jobProperty])) {
-    throw new Error(`expected request body to match {name${jobProperty ? `, ${jobProperty}` : ''}}`);
+    throw new Error(
+      `expected request body to match {name${
+        jobProperty ? `, ${jobProperty}` : ''
+      }}`
+    );
   }
 
   return {...defaultJob, ...job};
@@ -14,23 +18,31 @@ const getCheckJobFormatFunction = (jobProperty, defaultJob = {}) => job => {
 
 const doNotCheck = job => job;
 
-const getAssertFunction = (assertOnCount, errorOnName) => (job, jobs) => jobs.countDocuments({name: job.name})
-  .then(count => {
+const getAssertFunction = (assertOnCount, errorOnName) => (job, jobs) =>
+  jobs.countDocuments({name: job.name}).then(count => {
     if (!assertOnCount(count)) {
       throw new Error(errorOnName(job.name));
     }
   });
 
 const jobAssertions = {
-  alreadyExists: getAssertFunction(count => count > 0, name => `Did not find a job named "${name}"`),
-  notExists: getAssertFunction(count => count <= 0, name => `A job named "${name}" already exist`),
+  alreadyExists: getAssertFunction(
+    count => count > 0,
+    name => `Did not find a job named "${name}"`
+  ),
+  notExists: getAssertFunction(
+    count => count <= 0,
+    name => `A job named "${name}" already exist`
+  ),
   doNotAssert: () => true
 };
 
 const defineJob = async (job, jobs, agenda) => {
   const {name, url, method, callback} = job;
   agenda.define(name, (job, done) => {
-    const {attrs: {data}} = job;
+    const {
+      attrs: {data}
+    } = job;
     let uri = url;
     // http://example.com:8888/foo/:param1/:param2
     // =>
@@ -65,7 +77,9 @@ const defineJob = async (job, jobs, agenda) => {
 
     // Error if no response in timeout
     Promise.race([
-      new Promise((resolve, reject) => setTimeout(() => reject(new Error('TimeOutError')), settings.timeout)),
+      new Promise((resolve, reject) =>
+        setTimeout(() => reject(new Error('TimeOutError')), settings.timeout)
+      ),
       rp(options)
     ])
       .catch(err => {
@@ -87,8 +101,11 @@ const defineJob = async (job, jobs, agenda) => {
       .then(() => done());
   });
 
-  await jobs.countDocuments({name})
-    .then(count => count < 1 ? jobs.insertOne(job) : jobs.updateOne({name}, {$set: job}));
+  await jobs
+    .countDocuments({name})
+    .then(count =>
+      count < 1 ? jobs.insertOne(job) : jobs.updateOne({name}, {$set: job})
+    );
 
   return 'job defined';
 };
@@ -112,11 +129,13 @@ const getDefaultJobForSchedule = () => ({
   }
 });
 
+const pickValues = job => (props, prop) =>
+  job[prop] ? [...props, job[prop]] : props;
 const scheduleTypes = {
   now: {
     fn: agenda => agenda.now.bind(agenda),
     message: 'for now',
-    getParams: job => [job.name, job.data]
+    getParams: job => ['name', 'data'].reduce(pickValues(job), [])
   },
   once: {
     fn: agenda => agenda.schedule.bind(agenda),
@@ -128,13 +147,14 @@ const scheduleTypes = {
       // Check if interval is date
       time = new Date(time);
       time = isValidDate(time) ? time : job.interval;
-      return [time, job.name, job.data];
+      return ['time', 'name', 'data'].reduce(pickValues({...job, time}), []);
     }
   },
   every: {
     fn: agenda => agenda.every.bind(agenda),
     message: 'for repetition',
-    getParams: job => [job.interval, job.name, job.data]
+    getParams: job =>
+      ['interval', 'name', 'data', 'options'].reduce(pickValues(job), [])
   }
 };
 
@@ -143,7 +163,10 @@ const getScheduleJobFunction = scheduleType => async (job, jobs, agenda) => {
   return `job scheduled ${scheduleType.message}`;
 };
 
-const getJobOperation = (checkFunction, jobFunction) => ({check: checkFunction, fn: jobFunction});
+const getJobOperation = (checkFunction, jobFunction) => ({
+  check: checkFunction,
+  fn: jobFunction
+});
 
 const jobOperations = {
   create: getJobOperation(getCheckJobFormatFunction('url'), defineJob),
@@ -164,15 +187,16 @@ const jobOperations = {
   )
 };
 
-const promiseJobOperation = async (job, jobs, agenda, jobAssertion, jobOperation) => {
+const promiseJobOperation = async (
+  job,
+  jobs,
+  agenda,
+  jobAssertion,
+  jobOperation
+) => {
   job = await jobOperation.check(job);
   await jobAssertion(job, jobs);
   return jobOperation.fn(job, jobs, agenda);
 };
 
-export {
-  promiseJobOperation,
-  jobOperations,
-  jobAssertions,
-  defineJob
-};
+export {promiseJobOperation, jobOperations, jobAssertions, defineJob};

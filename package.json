@@ -6,7 +6,7 @@
   "jsnext:main": "./src/index.js",
   "scripts": {
     "prepublish": "npm run build",
-    "lint": "xo",
+    "lint": "xo --fix",
     "dev": "webpack --mode development",
     "build": "webpack --mode production",
     "test": "ava dist/test.js && npm run lint",
