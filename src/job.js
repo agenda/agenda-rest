@@ -129,13 +129,16 @@ const getDefaultJobForSchedule = () => ({
   }
 });
 
-const pickValues = job => (props, prop) =>
-  job[prop] ? [...props, job[prop]] : props;
+const pickValues = ({job, pickProps}) =>
+  pickProps.reduce(
+    (props, prop) => (job[prop] ? [...props, job[prop]] : props),
+    []
+  );
 const scheduleTypes = {
   now: {
     fn: agenda => agenda.now.bind(agenda),
     message: 'for now',
-    getParams: job => ['name', 'data'].reduce(pickValues(job), [])
+    getParams: job => pickValues({job, pickProps: ['name', 'data']})
   },
   once: {
     fn: agenda => agenda.schedule.bind(agenda),
@@ -147,14 +150,17 @@ const scheduleTypes = {
       // Check if interval is date
       time = new Date(time);
       time = isValidDate(time) ? time : job.interval;
-      return ['time', 'name', 'data'].reduce(pickValues({...job, time}), []);
+      return pickValues({
+        job: {...job, time},
+        pickProps: ['time', 'name', 'data']
+      });
     }
   },
   every: {
     fn: agenda => agenda.every.bind(agenda),
     message: 'for repetition',
     getParams: job =>
-      ['interval', 'name', 'data', 'options'].reduce(pickValues(job), [])
+      pickValues({job, pickProps: ['interval', 'name', 'data', 'options']})
   }
 };
 
