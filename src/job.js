@@ -1,25 +1,25 @@
-import querystring from "querystring";
-import { items } from "pythonic";
-import rp from "request-promise";
-import settings from "../settings";
-import { isValidDate } from "./util";
+import querystring from 'querystring';
+import {items} from 'pythonic';
+import rp from 'request-promise';
+import settings from '../settings';
+import {isValidDate} from './util';
 
 const getCheckJobFormatFunction = (jobProperty, defaultJob = {}) => job => {
   if (!job.name || (jobProperty && !job[jobProperty])) {
     throw new Error(
       `expected request body to match {name${
-        jobProperty ? `, ${jobProperty}` : ""
+        jobProperty ? `, ${jobProperty}` : ''
       }}`
     );
   }
 
-  return { ...defaultJob, ...job };
+  return {...defaultJob, ...job};
 };
 
 const doNotCheck = job => job;
 
 const getAssertFunction = (assertOnCount, errorOnName) => (job, jobs) =>
-  jobs.countDocuments({ name: job.name }).then(count => {
+  jobs.countDocuments({name: job.name}).then(count => {
     if (!assertOnCount(count)) {
       throw new Error(errorOnName(job.name));
     }
@@ -38,18 +38,18 @@ const jobAssertions = {
 };
 
 const defineJob = async (job, jobs, agenda) => {
-  const { name, url, method, callback } = job;
+  const {name, url, method, callback} = job;
   agenda.define(name, (job, done) => {
     const {
-      attrs: { data }
+      attrs: {data}
     } = job;
     let uri = url;
     // http://example.com:8888/foo/:param1/:param2
     // =>
     // http://example.com:8888/foo/value1/value2
-    if (url.indexOf("/:") > 0 && data.params) {
-      const protoDomain = url.slice(0, url.indexOf("/:"));
-      let path = url.slice(url.indexOf("/:"));
+    if (url.indexOf('/:') > 0 && data.params) {
+      const protoDomain = url.slice(0, url.indexOf('/:'));
+      let path = url.slice(url.indexOf('/:'));
       for (const [key, value] of items(data.params)) {
         path = path.replace(`:${key}`, value);
       }
@@ -62,13 +62,13 @@ const defineJob = async (job, jobs, agenda) => {
     // http://example.com/foo?query1=value1&query2=value2
     if (data.query) {
       const query = querystring.stringify(data.query);
-      if (query !== "") {
+      if (query !== '') {
         uri += `?${query}`;
       }
     }
 
     const options = {
-      method: method || "POST",
+      method: method || 'POST',
       uri,
       body: data.body,
       headers: data.headers || {},
@@ -78,21 +78,21 @@ const defineJob = async (job, jobs, agenda) => {
     // Error if no response in timeout
     Promise.race([
       new Promise((resolve, reject) =>
-        setTimeout(() => reject(new Error("TimeOutError")), settings.timeout)
+        setTimeout(() => reject(new Error('TimeOutError')), settings.timeout)
       ),
       rp(options)
     ])
       .catch(err => {
         job.fail(`options: ${JSON.stringify(options)} message: ${err.message}`);
-        return { error: err.message };
+        return {error: err.message};
       })
       .then(result => {
         if (callback) {
           return rp({
-            method: callback.method || "POST",
+            method: callback.method || 'POST',
             uri: callback.url,
             headers: callback.headers || {},
-            body: { data, response: result },
+            body: {data, response: result},
             json: true
           });
         }
@@ -102,12 +102,12 @@ const defineJob = async (job, jobs, agenda) => {
   });
 
   await jobs
-    .countDocuments({ name })
+    .countDocuments({name})
     .then(count =>
-      count < 1 ? jobs.insertOne(job) : jobs.updateOne({ name }, { $set: job })
+      count < 1 ? jobs.insertOne(job) : jobs.updateOne({name}, {$set: job})
     );
 
-  return "job defined";
+  return 'job defined';
 };
 
 const deleteJob = async (job, jobs, agenda) => {
@@ -129,7 +129,7 @@ const getDefaultJobForSchedule = () => ({
   }
 });
 
-const pickValues = ({ obj, pickProps }) =>
+const pickValues = ({obj, pickProps}) =>
   pickProps.reduce(
     (props, prop) => (obj[prop] ? [...props, obj[prop]] : props),
     []
@@ -137,12 +137,12 @@ const pickValues = ({ obj, pickProps }) =>
 const scheduleTypes = {
   now: {
     fn: agenda => agenda.now.bind(agenda),
-    message: "for now",
-    getParams: job => pickValues({ obj: job, pickProps: ["name", "data"] })
+    message: 'for now',
+    getParams: job => pickValues({obj: job, pickProps: ['name', 'data']})
   },
   once: {
     fn: agenda => agenda.schedule.bind(agenda),
-    message: "for once",
+    message: 'for once',
     getParams: job => {
       // Check if interval is timestamp
       let time = parseInt(job.interval, 10);
@@ -151,18 +151,18 @@ const scheduleTypes = {
       time = new Date(time);
       time = isValidDate(time) ? time : job.interval;
       return pickValues({
-        obj: { ...job, time },
-        pickProps: ["time", "name", "data"]
+        obj: {...job, time},
+        pickProps: ['time', 'name', 'data']
       });
     }
   },
   every: {
     fn: agenda => agenda.every.bind(agenda),
-    message: "for repetition",
+    message: 'for repetition',
     getParams: job =>
       pickValues({
         obj: job,
-        pickProps: ["interval", "name", "data", "options"]
+        pickProps: ['interval', 'name', 'data', 'options']
       })
   }
 };
@@ -178,7 +178,7 @@ const getJobOperation = (checkFunction, jobFunction) => ({
 });
 
 const jobOperations = {
-  create: getJobOperation(getCheckJobFormatFunction("url"), defineJob),
+  create: getJobOperation(getCheckJobFormatFunction('url'), defineJob),
   update: getJobOperation(getCheckJobFormatFunction(), defineJob),
   delete: getJobOperation(getCheckJobFormatFunction(), deleteJob),
   cancel: getJobOperation(doNotCheck, cancelJob),
@@ -187,11 +187,11 @@ const jobOperations = {
     getScheduleJobFunction(scheduleTypes.now)
   ),
   once: getJobOperation(
-    getCheckJobFormatFunction("interval", getDefaultJobForSchedule()),
+    getCheckJobFormatFunction('interval', getDefaultJobForSchedule()),
     getScheduleJobFunction(scheduleTypes.once)
   ),
   every: getJobOperation(
-    getCheckJobFormatFunction("interval", getDefaultJobForSchedule()),
+    getCheckJobFormatFunction('interval', getDefaultJobForSchedule()),
     getScheduleJobFunction(scheduleTypes.every)
   )
 };
@@ -208,4 +208,4 @@ const promiseJobOperation = async (
   return jobOperation.fn(job, jobs, agenda);
 };
 
-export { promiseJobOperation, jobOperations, jobAssertions, defineJob };
+export {promiseJobOperation, jobOperations, jobAssertions, defineJob};
