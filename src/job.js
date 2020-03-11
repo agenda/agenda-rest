@@ -1,8 +1,6 @@
-import querystring from 'querystring';
-import {items} from 'pythonic';
 import rp from 'request-promise';
 import settings from '../settings';
-import {isValidDate} from './util';
+import {isValidDate, buildUrlWithParams, buildUrlWithQuery} from './util';
 
 const getCheckJobFormatFunction = (jobProperty, defaultJob = {}) => job => {
   if (!job.name || (jobProperty && !job[jobProperty])) {
@@ -43,29 +41,8 @@ const defineJob = async (job, jobs, agenda) => {
     const {
       attrs: {data}
     } = job;
-    let uri = url;
-    // http://example.com:8888/foo/:param1/:param2
-    // =>
-    // http://example.com:8888/foo/value1/value2
-    if (url.indexOf('/:') > 0 && data.params) {
-      const protoDomain = url.slice(0, url.indexOf('/:'));
-      let path = url.slice(url.indexOf('/:'));
-      for (const [key, value] of items(data.params)) {
-        path = path.replace(`:${key}`, value);
-      }
-
-      uri = `${protoDomain}${path}`;
-    }
-
-    // http://example.com/foo
-    // =>
-    // http://example.com/foo?query1=value1&query2=value2
-    if (data.query) {
-      const query = querystring.stringify(data.query);
-      if (query !== '') {
-        uri += `?${query}`;
-      }
-    }
+    let uri = buildUrlWithParams({url, params: data.params});
+    uri = buildUrlWithQuery({url: uri, query: data.query});
 
     const options = {
       method: method || 'POST',
