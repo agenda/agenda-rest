@@ -1,13 +1,13 @@
-const {promisify} = require('util');
-const test = require('ava');
-const request = require('supertest');
-const {
+import {promisify} from 'util';
+import test from 'ava';
+import request from 'supertest';
+import {
   bootstrapKoaApp,
   oncePerKey,
   AsyncCounter,
   buildUrlWithParams,
   buildUrlWithQuery
-} = require('./src/util');
+} from './src/util';
 
 const agendaAppUrl = 'http://localhost:4041';
 const testAppUrl = 'http://localhost:4042';

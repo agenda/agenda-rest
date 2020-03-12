@@ -128,6 +128,6 @@ Cancels (not to be confused with 'delete') any jobs matching the query
 
 ```javascript
 {
-  name: "foo";
+  name: "foo"
 }
 ```
