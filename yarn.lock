@@ -7733,10 +7733,10 @@ xdg-basedir@^4.0.0:
   resolved "https://registry.yarnpkg.com/xdg-basedir/-/xdg-basedir-4.0.0.tgz#4bc8d9984403696225ef83a1573cbbcb4e79db13"
   integrity sha512-PSNhEJDejZYV7h50BohL09Er9VaIefr2LMAf3OEmpCkjOi34eYyQYAXUTjEQtZJTKcF0E2UKTh+osDLsgNim9Q==
 
-xo@0.28.1:
-  version "0.28.1"
-  resolved "https://registry.yarnpkg.com/xo/-/xo-0.28.1.tgz#90284169f31972728b5821878b4e0368ed9e6671"
-  integrity sha512-MEbLch4PUwBZw9G+JU0xn6/Udl39LirSF1RfR+TN5Ql+HcwmLCEHFMcV0jL71FD1XopWIWkCDZ8d8QQWFvsdnw==
+xo@0.28.2:
+  version "0.28.2"
+  resolved "https://registry.yarnpkg.com/xo/-/xo-0.28.2.tgz#78a5d5f15b57a3478a93f1c4633934fb33548300"
+  integrity sha512-7xOuOQHVcqZ07+Za8eemzJA0PfFdfqE9vCAJaJL0Jc1iBT1lVrNnc/tccGPmwN2rN4iRtHVCFxDLT5ILJ4UyUA==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^2.23.0"
     "@typescript-eslint/parser" "^2.23.0"
