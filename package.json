@@ -45,7 +45,7 @@
     "@babel/core": "7.9.0",
     "@babel/preset-env": "7.9.0",
     "@babel/register": "7.9.0",
-    "ava": "3.5.2",
+    "ava": "3.6.0",
     "babel-loader": "8.1.0",
     "supertest": "4.0.2",
     "webpack": "4.42.1",
