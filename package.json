@@ -5,12 +5,13 @@
   "main": "./dist/index.js",
   "jsnext:main": "./src/index.js",
   "scripts": {
-    "prepublish": "npm run build",
+    "prepublish": "yarn run snyk-protect && npm run build",
     "lint": "xo --fix",
     "dev": "webpack --mode development",
     "build": "webpack --mode production",
     "test": "ava dist/test.js && npm run lint",
-    "start": "npm run dev && node cli.js"
+    "start": "npm run dev && node cli.js",
+    "snyk-protect": "snyk protect"
   },
   "repository": {
     "type": "git",
@@ -64,7 +65,8 @@
     "pythonic": "^2.0.3",
     "regenerator-runtime": "^0.13.3",
     "request": "^2.88.0",
-    "request-promise": "^4.2.4"
+    "request-promise": "^4.2.4",
+    "snyk": "^1.316.1"
   },
   "engines": {
     "node": ">=8"
@@ -85,5 +87,6 @@
         5
       ]
     }
-  }
+  },
+  "snyk": true
 }
