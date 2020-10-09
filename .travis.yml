@@ -1,4 +1,3 @@
-
 language: node_js
 node_js:
   - 12
@@ -11,14 +10,15 @@ sudo: false
 addons:
   apt:
     sources:
-    - mongodb-upstart
+      - mongodb-upstart
     packages:
-    - mongodb-org-server
-    - mongodb-org-shell
+      - mongodb-org-server
+      - mongodb-org-shell
 before_script:
   - mongo --version
   - mongod --version
   - 'if [ "$AGENDA_VERSION" ]; then yarn add agenda@$AGENDA_VERSION; fi'
-  - 'until nc -z 127.0.0.1 27017 ; do echo Waiting for MongoDB; sleep 1; done'
+  - npm run build
+  - "until nc -z 127.0.0.1 27017 ; do echo Waiting for MongoDB; sleep 1; done"
 env:
   - AGENDA_VERSION=^2.0.0

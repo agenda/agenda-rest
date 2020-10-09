@@ -20,10 +20,10 @@ settings.dbhost = program.dbhost || settings.dbhost;
 settings.appId = program.key || settings.appId;
 settings.timeout = program.timeout || settings.timeout;
 if (program.agenda_settings) {
-  settings.agenda = JSON.parse(program.agenda_settings)
+  settings.agenda = JSON.parse(program.agenda_settings);
 }
 
-const { app, agenda } = require('./dist');
+const {app, agenda} = require('./dist');
 
 const server = app.listen(program.port, () => {
   console.log(`App listening on port ${program.port}.`);
