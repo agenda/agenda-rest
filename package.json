@@ -6,7 +6,8 @@
   "jsnext:main": "./src/index.js",
   "scripts": {
     "prepublish": "npm run build",
-    "lint": "xo --fix",
+    "format": "prettier-eslint --eslint-config-path ./.eslintrc.js --write '**/*.js'",
+    "lint": "eslint . --ext .js",
     "dev": "webpack --mode development",
     "build": "webpack --mode production",
     "test": "ava ./dist/test.js && npm run lint",
@@ -47,10 +48,13 @@
     "@babel/register": "7.9.0",
     "ava": "=2.4.0",
     "babel-loader": "8.1.0",
+    "eslint": "6.8.0",
+    "prettier": "2.1.2",
+    "prettier-eslint": "11.0.0",
+    "prettier-eslint-cli": "5.0.0",
     "supertest": "4.0.2",
     "webpack": "4.42.1",
-    "webpack-cli": "3.3.11",
-    "xo": "=0.29.1"
+    "webpack-cli": "3.3.11"
   },
   "dependencies": {
     "agenda": "^3.0.0",
