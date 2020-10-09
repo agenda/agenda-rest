@@ -1,16 +1,17 @@
-import {promisify} from 'util';
+import { promisify } from 'util';
 import Agenda from 'agenda';
 import settings from '../settings';
-import {bootstrapKoaApp} from './util';
-import {defineJob, jobOperations, jobAssertions, promiseJobOperation} from './job';
+import { bootstrapKoaApp } from './util';
+import { defineJob, jobOperations, jobAssertions, promiseJobOperation } from './job';
 
-const {app, router} = bootstrapKoaApp();
+const { app, router } = bootstrapKoaApp();
 
 const agenda = new Agenda({
   db: {
     address: settings.agendaMongoUrl,
-    collection: settings.collection
-  }
+    collection: settings.collection ? settings.collection : undefined
+  },
+  ...settings.agenda
 });
 
 const jobsReady = agenda._ready
@@ -87,5 +88,5 @@ router.post('/api/v1/job/every', redirect('/api/job/every'));
 router.post('/api/v1/job/now', redirect('/api/job/now'));
 router.post('/api/v1/job/cancel', redirect('/api/job/cancel'));
 
-export {app, router, agenda, jobsReady};
+export { app, router, agenda, jobsReady };
 export default app;
