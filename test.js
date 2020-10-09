@@ -1,61 +1,61 @@
-import {promisify} from 'util';
-import test from 'ava';
-import request from 'supertest';
+import { promisify } from "util";
+import test from "ava";
+import request from "supertest";
 import {
   bootstrapKoaApp,
   oncePerKey,
   AsyncCounter,
   buildUrlWithParams,
-  buildUrlWithQuery
-} from './src/util';
+  buildUrlWithQuery,
+} from "./src/util";
 
-const agendaAppUrl = 'http://localhost:4041';
-const testAppUrl = 'http://localhost:4042';
-const {app: testApp, router: testAppRouter} = bootstrapKoaApp();
-const getTestAppUrl = path => (path ? `${testAppUrl}${path}` : testAppUrl);
+const agendaAppUrl = "http://localhost:4041";
+const testAppUrl = "http://localhost:4042";
+const { app: testApp, router: testAppRouter } = bootstrapKoaApp();
+const getTestAppUrl = (path) => (path ? `${testAppUrl}${path}` : testAppUrl);
 
 const agendaAppRequest = request(agendaAppUrl);
 
 const bootstrapApp = async () => {
-  const {app, jobsReady} = require('./src');
+  const { app, jobsReady } = require("./src");
   await promisify(app.listen)
     .bind(app)(4041)
-    .then(() => console.log('agenda-rest app running'));
+    .then(() => console.log("agenda-rest app running"));
 
   await promisify(testApp.listen)
     .bind(testApp)(4042)
-    .then(() => console.log('test app running'));
+    .then(() => console.log("test app running"));
   await jobsReady;
 };
 
 test.before(() => bootstrapApp());
 
-test.serial('POST /api/job fails without content', async t => {
-  const res = await agendaAppRequest.post('/api/job').send();
+test.serial("POST /api/job fails without content", async (t) => {
+  const res = await agendaAppRequest.post("/api/job").send();
 
   t.is(res.status, 400);
 });
 
-test.serial('POST /api/job succeeds when a job is specified', async t => {
+test.serial("POST /api/job succeeds when a job is specified", async (t) => {
   const res = await agendaAppRequest
-    .post('/api/job')
-    .send({name: 'foo', url: getTestAppUrl('/fooWrong')});
+    .post("/api/job")
+    .send({ name: "foo", url: getTestAppUrl("/fooWrong") });
 
   t.is(res.status, 200);
 });
 
-test.serial('PUT /api/job fails when the job does not exists', async t => {
+test.serial("PUT /api/job fails when the job does not exists", async (t) => {
   const res = await agendaAppRequest
-    .put('/api/job/fooWrong')
-    .send({url: getTestAppUrl('/foo')});
+    .put("/api/job/fooWrong")
+    .send({ url: getTestAppUrl("/foo") });
 
   t.is(res.status, 400);
 });
 
-test.serial('PUT /api/job succeeds when the job exists', async t => {
+test.serial("PUT /api/job succeeds when the job exists", async (t) => {
   const res = await agendaAppRequest
-    .put('/api/job/foo')
-    .send({url: getTestAppUrl('/foo')});
+    .put("/api/job/foo")
+    .send({ url: getTestAppUrl("/foo") });
 
   t.is(res.status, 200);
 });
@@ -108,70 +108,70 @@ testAppRouter.post('/foo/cb', async (ctx, next) => {
 */
 
 test.serial(
-  'POST /api/job/now with existing foo definition invokes the foo endpoint',
-  async t => {
-    const counter = defineFooEndpoint('/foo', 'foo now invoked');
+  "POST /api/job/now with existing foo definition invokes the foo endpoint",
+  async (t) => {
+    const counter = defineFooEndpoint("/foo", "foo now invoked");
     const res = await agendaAppRequest
-      .post('/api/job/now')
-      .send({name: 'foo'});
+      .post("/api/job/now")
+      .send({ name: "foo" });
 
-    t.is(res.text, 'job scheduled for now');
+    t.is(res.text, "job scheduled for now");
 
     await counter.finished;
   }
 );
 
 test.serial(
-  'POST /api/job/every with existing foo definition invokes the foo endpoint',
-  async t => {
-    const counter = defineFooEndpoint('/foo', 'foo every invoked', 3);
+  "POST /api/job/every with existing foo definition invokes the foo endpoint",
+  async (t) => {
+    const counter = defineFooEndpoint("/foo", "foo every invoked", 3);
     const res = await agendaAppRequest
-      .post('/api/job/every')
-      .send({name: 'foo', interval: '2 seconds'});
+      .post("/api/job/every")
+      .send({ name: "foo", interval: "2 seconds" });
 
-    t.is(res.text, 'job scheduled for repetition');
+    t.is(res.text, "job scheduled for repetition");
 
     await counter.finished;
   }
 );
 
 test.serial(
-  'POST /api/job/once with existing foo definition invokes the foo endpoint',
-  async t => {
-    const counter = defineFooEndpoint('/foo', 'foo once invoked');
+  "POST /api/job/once with existing foo definition invokes the foo endpoint",
+  async (t) => {
+    const counter = defineFooEndpoint("/foo", "foo once invoked");
     const res = await agendaAppRequest
-      .post('/api/job/once')
-      .send({name: 'foo', interval: new Date().getTime() + 10000});
+      .post("/api/job/once")
+      .send({ name: "foo", interval: new Date().getTime() + 10000 });
     // .send({name: 'foo', interval: 'in 10 seconds'});
 
-    t.is(res.text, 'job scheduled for once');
+    t.is(res.text, "job scheduled for once");
 
     await counter.finished;
   }
 );
 
-test.serial('DELETE /api/job succeeds when a job is defined', async t => {
-  const res = await agendaAppRequest.delete('/api/job/foo');
+test.serial("DELETE /api/job succeeds when a job is defined", async (t) => {
+  const res = await agendaAppRequest.delete("/api/job/foo");
 
   t.is(res.status, 200);
 });
 
-test('Build URL with parameters.', t => {
+test("Build URL with parameters.", (t) => {
   t.is(
     buildUrlWithParams({
-      url: 'http://example.com:8888/foo/:param1/:param2',
-      params: {param1: 'value1', param2: 'value2'}
+      url: "http://example.com:8888/foo/:param1/:param2",
+      params: { param1: "value1", param2: "value2" },
     }),
-    'http://example.com:8888/foo/value1/value2'
+    "http://example.com:8888/foo/value1/value2"
   );
 });
 
-test('Build URL with query.', t => {
+test("Build URL with query.", (t) => {
   t.is(
     buildUrlWithQuery({
-      url: 'http://example.com/foo',
-      query: {query1: 'value1', query2: 'value2'}
+      url: "http://example.com/foo",
+      query: { query1: "value1", query2: "value2" },
     }),
-    'http://example.com/foo?query1=value1&query2=value2'
+    "http://example.com/foo?query1=value1&query2=value2"
   );
 });

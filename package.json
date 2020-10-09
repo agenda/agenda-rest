@@ -6,11 +6,10 @@
   "jsnext:main": "./src/index.js",
   "scripts": {
     "prepublish": "npm run build",
-    "format": "prettier-eslint --eslint-config-path ./.eslintrc.js --write '**/*.js'",
-    "lint": "eslint . --ext .js",
+    "format": "prettier-eslint --eslint-config-path ./.eslintrc.js --write $PWD'/**/*.js'",
     "dev": "webpack --mode development",
     "build": "webpack --mode production",
-    "test": "ava ./dist/test.js && npm run lint",
+    "test": "ava ./dist/test.js && npm run format",
     "start": "npm run dev && node cli.js"
   },
   "repository": {
