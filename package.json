@@ -1,15 +1,15 @@
 {
   "name": "agenda-rest",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Scheduling as a Service",
   "main": "./dist/index.js",
   "jsnext:main": "./src/index.js",
   "scripts": {
     "prepublish": "npm run build",
-    "lint": "xo --fix",
+    "format": "prettier-eslint --eslint-config-path ./.eslintrc.js --write $PWD'/**/*.js'",
     "dev": "webpack --mode development",
     "build": "webpack --mode production",
-    "test": "ava dist/test.js && npm run lint",
+    "test": "ava ./dist/test.js && npm run format",
     "start": "npm run dev && node cli.js"
   },
   "repository": {
@@ -45,12 +45,15 @@
     "@babel/core": "7.9.0",
     "@babel/preset-env": "7.9.5",
     "@babel/register": "7.9.0",
-    "ava": "3.7.0",
+    "ava": "=2.4.0",
     "babel-loader": "8.1.0",
+    "eslint": "6.8.0",
+    "prettier": "2.1.2",
+    "prettier-eslint": "11.0.0",
+    "prettier-eslint-cli": "5.0.0",
     "supertest": "4.0.2",
     "webpack": "4.42.1",
-    "webpack-cli": "3.3.11",
-    "xo": "0.29.1"
+    "webpack-cli": "3.3.11"
   },
   "dependencies": {
     "agenda": "^3.0.0",

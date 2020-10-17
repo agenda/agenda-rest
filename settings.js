@@ -1,9 +1,9 @@
-let dbname = process.env.DB_NAME || 'agenda';
-let dbhost = process.env.DB_HOST || 'localhost';
+let dbname = process.env.DB_NAME || "agenda";
+let dbhost = process.env.DB_HOST || "localhost";
 let dburi = process.env.DB_URI || null;
 let appId = process.env.API_KEY;
-let collection = 'agendaJobs';
-let definitions = 'jobDefinitions';
+let collection = "agendaJobs";
+let definitions = "jobDefinitions";
 let timeout = 5000;
 
 const settings = {
@@ -51,7 +51,7 @@ const settings = {
   },
   set appId(value) {
     appId = value;
-  }
+  },
 };
 
 module.exports = settings;
