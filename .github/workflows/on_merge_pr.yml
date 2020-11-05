@@ -17,6 +17,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: npm install
       - run: npm run build
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+# Waiting for npm_token to be added to GitHub to publish.
+#      - run: npm publish
+#        env:
+#          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
