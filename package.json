@@ -5,11 +5,13 @@
   "main": "./dist/index.js",
   "jsnext:main": "./src/index.js",
   "scripts": {
+    "snyk-protect": "snyk protect",
     "format": "prettier-eslint --eslint-config-path ./.eslintrc.js --write $PWD'/**/*.js'",
     "dev": "webpack --mode development",
     "build": "webpack --mode production",
     "test": "ava ./dist/test.js && npm run format",
-    "start": "npm run dev && node cli.js"
+    "start": "npm run dev && node cli.js",
+    "prepublish": "npm run snyk-protect && npm run build"
   },
   "repository": {
     "type": "git",
@@ -66,7 +68,8 @@
     "pythonic": "^2.0.3",
     "regenerator-runtime": "^0.13.3",
     "request": "^2.88.0",
-    "request-promise": "^4.2.4"
+    "request-promise": "^4.2.4",
+    "snyk": "^1.424.2"
   },
   "engines": {
     "node": ">=8"
@@ -87,5 +90,6 @@
         5
       ]
     }
-  }
+  },
+  "snyk": true
 }
