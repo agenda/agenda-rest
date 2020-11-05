@@ -1,0 +1,23 @@
+name: On merge pull request.
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org/
+      - run: npm install
+      - run: npm run prepublish 
+# Waiting for npm_token to be added to GitHub to publish.
+#      - run: npm publish
+#        env:
+#          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
