@@ -60,7 +60,7 @@
     "agenda": "^4.0.0",
     "async-counter": "^1.1.0",
     "babel-runtime": "^6.26.0",
-    "commander": "^6.0.0",
+    "commander": "^7.0.0",
     "koa": "^2.10.0",
     "koa-bodyparser": "^4.2.1",
     "koa-logger": "^3.2.1",
