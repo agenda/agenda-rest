@@ -54,7 +54,7 @@
     "prettier-eslint-cli": "5.0.0",
     "supertest": "4.0.2",
     "webpack": "4.46.0",
-    "webpack-cli": "3.3.11"
+    "webpack-cli": "3.3.12"
   },
   "dependencies": {
     "agenda": "^4.0.0",
