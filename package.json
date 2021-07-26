@@ -50,7 +50,7 @@
     "babel-loader": "8.2.2",
     "eslint": "7.31.0",
     "prettier": "2.3.2",
-    "prettier-eslint": "12.0.0",
+    "prettier-eslint": "13.0.0",
     "prettier-eslint-cli": "5.0.1",
     "supertest": "6.1.4",
     "webpack": "5.46.0",
