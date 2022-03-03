@@ -12,7 +12,9 @@
     "start": "npm run dev && node cli.js",
     "preversion": "npm test",
     "prepublish": "npm run build",
-    "publish": "npm publish"
+    "publish": "npm publish",
+    "pushregistry": "bash push-registry.sh",
+    "postpublish": "npm run pushregistry gcp && npm run pushregistry do"
   },
   "repository": {
     "type": "git",
