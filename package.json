@@ -12,7 +12,7 @@
     "start": "npm run dev && node cli.js",
     "preversion": "npm test",
     "prepublish": "npm run build",
-    "publish": "npm version patch && npm publish"
+    "publish": "npm publish"
   },
   "repository": {
     "type": "git",
