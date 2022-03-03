@@ -78,8 +78,7 @@ const defineFooEndpoint = (
       ctx.body = fooProps.message;
       ctx.status = fooProps.statusCode;
       console.log(
-        `${fooProps.message}! ${await fooProps.counter.count()} of ${
-          fooProps.counter.countTimes
+        `${fooProps.message}! ${await fooProps.counter.count()} of ${fooProps.counter.countTimes
         }`
       );
       await next();
@@ -152,6 +151,12 @@ test.serial(
 
 test.serial("DELETE /api/job succeeds when a job is defined", async (t) => {
   const res = await agendaAppRequest.delete("/api/job/foo");
+
+  t.is(res.status, 200);
+});
+
+test("GET /health returns 200 OK", async (t) => {
+  const res = await agendaAppRequest.get("/health");
 
   t.is(res.status, 200);
 });

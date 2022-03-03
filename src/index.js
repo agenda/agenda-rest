@@ -98,6 +98,9 @@ const cancelJobs = getJobMiddleware(
 );
 
 // Latest
+router.get("/health", (ctx) => {
+  ctx.status = 200;
+});
 router.get("/api/job", listJobs);
 router.post("/api/job", createJob);
 router.del("/api/job/:jobName", removeJob);
