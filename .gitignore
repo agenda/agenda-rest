@@ -1,3 +1,5 @@
+docker.env
+
 dist
 package-lock.json
 
