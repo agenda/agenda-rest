@@ -78,7 +78,8 @@ const defineFooEndpoint = (
       ctx.body = fooProps.message;
       ctx.status = fooProps.statusCode;
       console.log(
-        `${fooProps.message}! ${await fooProps.counter.count()} of ${fooProps.counter.countTimes
+        `${fooProps.message}! ${await fooProps.counter.count()} of ${
+          fooProps.counter.countTimes
         }`
       );
       await next();

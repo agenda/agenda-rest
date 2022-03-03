@@ -7,7 +7,7 @@
   "scripts": {
     "format": "prettier-eslint --eslint-config-path ./.eslintrc.js --write $PWD'/**/*.js'",
     "dev": "webpack --mode development",
-    "build": "webpack --mode production",
+    "build": "rm -rf dist && webpack --mode production",
     "test": "ava ./dist/test.js && npm run format",
     "start": "npm run dev && node cli.js",
     "prepublish": "npm run build"
