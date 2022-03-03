@@ -54,13 +54,13 @@ whitelist_service_ip() {
         \"ipAddress\": \"$current_service_ip\"
       }
     ]" \
-    | jq -r 'if .error == 400 then . else "whitelist successful" end'
+    | jq -r 'if .error then . else "whitelist successful" end'
 }
 
 get_previous_service_ip() {
   local access_list_endpoint=`get_access_list_endpoint`
 
-  local previous_ip=`make_mongo_api_request 'GET' "$access_list_endpoint" | jq --arg SERVICE_NAME "$SERVICE_NAME" -r '.results[] as $results | $results.comment | if test("\($SERVICE_NAME)") then $results.ipAddress else empty end'`
+  local previous_ip=`make_mongo_api_request 'GET' "$access_list_endpoint" | jq --arg SERVICE_NAME "$SERVICE_NAME" -r '.results[]? as $results | $results.comment | if test("\($SERVICE_NAME)") then $results.ipAddress else empty end'`
 
   echo $previous_ip
 }
