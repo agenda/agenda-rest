@@ -11,6 +11,7 @@
     "test": "ava ./dist/test.js && npm run format",
     "start": "npm run dev && node cli.js",
     "preversion": "npm test",
+    "version": "npm version patch",
     "prepublish": "npm run build",
     "publish": "npm run version && npm publish"
   },
