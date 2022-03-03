@@ -1,6 +1,6 @@
 {
   "name": "@nftoolkit/agenda-rest",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Scheduling as a Service",
   "main": "./dist/index.js",
   "jsnext:main": "./src/index.js",
