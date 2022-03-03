@@ -72,7 +72,7 @@ build_tag_and_push_to_registry() {
 
   # NOTE: it will break if you quote $build_args
   # no fucking clue why but it does...
-  docker build $build_args -t "$IMAGE_NAME:latest"
+  docker build $build_args -t "$IMAGE_NAME:latest" .
   docker tag "$IMAGE_NAME:latest" "$registry_tag_latest"
     
   echo "pushing latest @ [$registry_tag_latest]"
