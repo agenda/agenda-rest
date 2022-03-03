@@ -36,30 +36,28 @@ const jobsReady = agenda._ready.then(async () => {
   return jobs;
 });
 
-const getJobMiddleware = (
-  jobAssertion,
-  jobOperation,
-  errorCode = 400
-) => async (ctx, next) => {
-  if (settings.appId && ctx.request.headers["x-api-key"] !== settings.appId) {
-    ctx.throw(403, "Forbidden");
-  }
+const getJobMiddleware =
+  (jobAssertion, jobOperation, errorCode = 400) =>
+  async (ctx, next) => {
+    if (settings.appId && ctx.request.headers["x-api-key"] !== settings.appId) {
+      ctx.throw(403, "Forbidden");
+    }
 
-  const job = ctx.request.body || {};
-  if (ctx.params.jobName) {
-    job.name = ctx.params.jobName;
-  }
+    const job = ctx.request.body || {};
+    if (ctx.params.jobName) {
+      job.name = ctx.params.jobName;
+    }
 
-  const jobs = await jobsReady;
-  ctx.body = await promiseJobOperation(
-    job,
-    jobs,
-    agenda,
-    jobAssertion,
-    jobOperation
-  ).catch((error) => ctx.throw(errorCode, error));
-  await next();
-};
+    const jobs = await jobsReady;
+    ctx.body = await promiseJobOperation(
+      job,
+      jobs,
+      agenda,
+      jobAssertion,
+      jobOperation
+    ).catch((error) => ctx.throw(errorCode, error));
+    await next();
+  };
 
 const listJobs = async (ctx, next) => {
   if (settings.appId && ctx.request.headers["x-api-key"] !== settings.appId) {
@@ -109,11 +107,13 @@ router.post("/api/job/every", runJobEvery);
 router.post("/api/job/now", runJobNow);
 router.post("/api/job/cancel", cancelJobs);
 
-const redirect = (route, status = 307) => async (ctx, next) => {
-  ctx.status = status;
-  ctx.redirect(route);
-  await next();
-};
+const redirect =
+  (route, status = 307) =>
+  async (ctx, next) => {
+    ctx.status = status;
+    ctx.redirect(route);
+    await next();
+  };
 
 // V1
 router.get("/api/v1/job", redirect("/api/job"));

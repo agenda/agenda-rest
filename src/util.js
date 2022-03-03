@@ -31,16 +31,20 @@ const isValidDate = (date) =>
   Object.prototype.toString.call(date) === "[object Date]" &&
   !isNaN(date.getTime());
 
-const repeatPerKey = (keys = {}) => (count) => (key, fn) => () => {
-  if (!(key in keys)) {
-    keys[key] = 0;
-  }
+const repeatPerKey =
+  (keys = {}) =>
+  (count) =>
+  (key, fn) =>
+  () => {
+    if (!(key in keys)) {
+      keys[key] = 0;
+    }
 
-  if (keys[key] < count) {
-    fn();
-    keys[key]++;
-  }
-};
+    if (keys[key] < count) {
+      fn();
+      keys[key]++;
+    }
+  };
 
 const oncePerKey = repeatPerKey()(1);
 
