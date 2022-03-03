@@ -1,6 +1,6 @@
 {
   "name": "@nftoolkit/agenda-rest",
-  "version": "1.0.4",
+  "version": "1.0.2",
   "description": "Scheduling as a Service",
   "main": "./dist/index.js",
   "jsnext:main": "./src/index.js",
@@ -10,7 +10,9 @@
     "build": "rm -rf dist && webpack --mode production",
     "test": "ava ./dist/test.js && npm run format",
     "start": "npm run dev && node cli.js",
-    "prepublish": "npm run build"
+    "preversion": "npm test",
+    "prepublish": "npm run build",
+    "publish": "npm run version && npm publish"
   },
   "repository": {
     "type": "git",
