@@ -96,5 +96,8 @@ set_mongo_whitelist_for_service_ip() {
 check_for_jq
 set_mongo_whitelist_for_service_ip
 
+echo "waiting 15s for whitelist to activate"
+sleep 15s
+
 # run CMD
 exec "$@"

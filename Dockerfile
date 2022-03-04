@@ -33,3 +33,5 @@ RUN apk update && apk add --no-cache jq
 COPY ./docker/scripts/mongo-atlas-whitelist-entrypoint.sh /tmp/entrypoint.sh
 
 ENTRYPOINT [ "/bin/bash", "/tmp/entrypoint.sh" ]
+# NOTE: must re-define the CMD because entrypoint is "overridden" (relative to default docker-entrypoint.sh)
+CMD agenda-rest --port ${API_PORT} --dburi ${MONGO_DB_URL}
