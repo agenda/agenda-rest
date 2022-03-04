@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 # -- ENV -- #
-# SERVICE_NAME=''
-# MONGO_ATLAS_API_PK=''
-# MONGO_ATLAS_API_SK=''
-# MONGO_ATLAS_API_PROJECT_ID=''
+# SERVICE_NAME
+# MONGO_ATLAS_API_PK
+# MONGO_ATLAS_API_SK
+# MONGO_ATLAS_API_PROJECT_ID
 # -- ENV -- #
 
 set -e
@@ -49,11 +49,12 @@ get_service_ip() {
 }
 
 get_previous_service_ip() {
-  local access_list_endpoint=`get_access_list_endpoint`
+  local access_list_endpoint=$(get_access_list_endpoint)
 
-  local previous_ip=`make_mongo_api_request 'GET' "$access_list_endpoint" \
-                    | jq --arg SERVICE_NAME "$SERVICE_NAME" -r \
-                    '.results[]? as $results | $results.comment | if test("\\[\($SERVICE_NAME)\\]") then $results.ipAddress else empty end'`
+  local previous_ip=$(make_mongo_api_request 'GET' "$access_list_endpoint" \
+                      | jq --arg SERVICE_NAME "$SERVICE_NAME" -r \
+                        '.results[]? as $results | $results.comment | if test("\\[\($SERVICE_NAME)\\]") then $results.ipAddress else empty end'
+                    )
 
   echo "$previous_ip"
 }
@@ -71,16 +72,17 @@ whitelist_service_ip() {
   
   echo "whitelisting service IP [$current_service_ip] with comment value: \"$comment\""
 
-  response=`make_mongo_api_request \
-            'POST' \
-            "$(get_access_list_endpoint)?pretty=true" \
-            "[
-              {
-                \"comment\" : \"$comment\",
-                \"ipAddress\": \"$current_service_ip\"
-              }
-            ]" \
-            | jq -r 'if .error then . else empty end'`
+  response=$(make_mongo_api_request \
+              'POST' \
+              "$(get_access_list_endpoint)?pretty=true" \
+              "[
+                {
+                  \"comment\" : \"$comment\",
+                  \"ipAddress\": \"$current_service_ip\"
+                }
+              ]" \
+              | jq -r 'if .error then . else empty end'
+            )
 
   if [[ -n "$response" ]];
   then
@@ -105,8 +107,8 @@ delete_previous_service_ip() {
 }
 
 set_mongo_whitelist_for_service_ip() {
-  local current_service_ip=`get_service_ip`
-  local previous_service_ip=`get_previous_service_ip`
+  local current_service_ip=$(get_service_ip)
+  local previous_service_ip=$(get_previous_service_ip)
 
   if [[ -z "$previous_service_ip" ]]; then
     echo "service [$SERVICE_NAME] has not yet been whitelisted"
