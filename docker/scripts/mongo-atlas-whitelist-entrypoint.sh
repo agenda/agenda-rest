@@ -45,7 +45,7 @@ whitelist_service_ip() {
   
   echo "whitelisting service with comment value: \"$comment\""
 
-  make_mongo_api_request \
+  response=`make_mongo_api_request \
     'POST' \
     "$(get_access_list_endpoint)?pretty=true" \
     "[
@@ -54,7 +54,17 @@ whitelist_service_ip() {
         \"ipAddress\": \"$current_service_ip\"
       }
     ]" \
-    | jq -r 'if .error then . else "whitelist successful" end'
+    | jq -r 'if .error then . else empty end'`
+
+  if [[ -n "$response" ]];
+  then
+    echo "$response"
+    exit 1
+  else
+    echo "whitelist successful"
+    echo "waiting 60s for whitelist to activate"
+    sleep 60s
+  fi 
 }
 
 get_previous_service_ip() {
@@ -95,9 +105,6 @@ set_mongo_whitelist_for_service_ip() {
 
 check_for_jq
 set_mongo_whitelist_for_service_ip
-
-echo "waiting 30s for whitelist to activate"
-sleep 30s
 
 # run CMD
 exec "$@"
