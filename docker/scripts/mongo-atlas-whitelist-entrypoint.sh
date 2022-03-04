@@ -1,14 +1,30 @@
 #!/usr/bin/env bash
 
+# -- ENV -- #
+# SERVICE_NAME=''
+# MONGO_ATLAS_API_PK=''
+# MONGO_ATLAS_API_SK=''
+# MONGO_ATLAS_API_PROJECT_ID=''
+# -- ENV -- #
+
 set -e
 
 mongo_api_base_url='https://cloud.mongodb.com/api/atlas/v1.0'
 
-check_for_jq() {
-  if [ ! "$(command -v jq)" ]; then
-    echo 'jq JSON parser not found'
+check_for_deps() {
+  deps=(
+    bash
+    curl
+    jq
+  )
+
+ for dep in "${deps[@]}"; do
+   if [ ! "$(command -v $dep)" ]
+   then
+    echo "dependency [$dep] not found. exiting"
     exit 1
-  fi
+   fi
+ done
 }
 
 make_mongo_api_request() {
@@ -32,6 +48,16 @@ get_service_ip() {
   echo -n "$(curl https://ipinfo.io/ip -s)"
 }
 
+get_previous_service_ip() {
+  local access_list_endpoint=`get_access_list_endpoint`
+
+  local previous_ip=`make_mongo_api_request 'GET' "$access_list_endpoint" \
+                    | jq --arg SERVICE_NAME "$SERVICE_NAME" -r \
+                    '.results[]? as $results | $results.comment | if test("\\[\($SERVICE_NAME)\\]") then $results.ipAddress else empty end'`
+
+  echo "$previous_ip"
+}
+
 whitelist_service_ip() {
   local current_service_ip="$1"
   local comment="Hosted IP of [$SERVICE_NAME] [set@$(date +%s)]"
@@ -43,36 +69,29 @@ whitelist_service_ip() {
     exit 1
   fi
   
-  echo "whitelisting service with comment value: \"$comment\""
+  echo "whitelisting service IP [$current_service_ip] with comment value: \"$comment\""
 
   response=`make_mongo_api_request \
-    'POST' \
-    "$(get_access_list_endpoint)?pretty=true" \
-    "[
-      {
-        \"comment\" : \"$comment\",
-        \"ipAddress\": \"$current_service_ip\"
-      }
-    ]" \
-    | jq -r 'if .error then . else empty end'`
+            'POST' \
+            "$(get_access_list_endpoint)?pretty=true" \
+            "[
+              {
+                \"comment\" : \"$comment\",
+                \"ipAddress\": \"$current_service_ip\"
+              }
+            ]" \
+            | jq -r 'if .error then . else empty end'`
 
   if [[ -n "$response" ]];
   then
+    echo 'API error whitelisting service'
     echo "$response"
     exit 1
   else
-    echo "whitelist successful"
-    echo "waiting 60s for whitelist to activate"
+    echo "whitelist request successful"
+    echo "waiting 60s for whitelist to propagate to cluster"
     sleep 60s
   fi 
-}
-
-get_previous_service_ip() {
-  local access_list_endpoint=`get_access_list_endpoint`
-
-  local previous_ip=`make_mongo_api_request 'GET' "$access_list_endpoint" | jq --arg SERVICE_NAME "$SERVICE_NAME" -r '.results[]? as $results | $results.comment | if test("\($SERVICE_NAME)") then $results.ipAddress else empty end'`
-
-  echo $previous_ip
 }
 
 delete_previous_service_ip() {
@@ -93,7 +112,7 @@ set_mongo_whitelist_for_service_ip() {
     echo "service [$SERVICE_NAME] has not yet been whitelisted"
 
     whitelist_service_ip "$current_service_ip"
-  elif [[ "$current_service_ip" == "${previous_service_ip}" ]]; then
+  elif [[ "$current_service_ip" == "$previous_service_ip" ]]; then
     echo "service [$SERVICE_NAME] IP has not changed"
   else  
     echo "service [$SERVICE_NAME] IP has changed from [$previous_service_ip] to [$current_service_ip]"
@@ -103,7 +122,7 @@ set_mongo_whitelist_for_service_ip() {
   fi
 }
 
-check_for_jq
+check_for_deps
 set_mongo_whitelist_for_service_ip
 
 # run CMD
