@@ -28,7 +28,7 @@
 # -- ENV -- #
 
 # whatever you name the env file here
-source docker.env
+source push-registry.env
 
 case "$1" in
   gcp)
