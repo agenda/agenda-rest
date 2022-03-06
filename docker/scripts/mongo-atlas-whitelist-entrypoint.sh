@@ -32,7 +32,8 @@ make_mongo_api_request() {
   local request_url="$2"
   local data="$3"
 
-  curl -s \
+  curl \
+    --silent \
     --user "$MONGO_ATLAS_API_PK:$MONGO_ATLAS_API_SK" --digest \
     --header "Accept: application/json" \
     --header "Content-Type: application/json" \
@@ -92,7 +93,7 @@ whitelist_service_ip() {
   else
     echo "whitelist request successful"
     echo "waiting 60s for whitelist to propagate to cluster"
-    sleep 60s
+    sleep 60
   fi 
 }
 
