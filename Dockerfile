@@ -1,6 +1,6 @@
 FROM node:16.14-alpine AS base
 
-ARG VERSION
+ARG VERSION=1.03
 ENV VERSION=${VERSION}
 
 ENV API_PORT=8008
@@ -15,7 +15,8 @@ RUN npm install -g @nftoolkit/agenda-rest@${VERSION}
 
 EXPOSE ${API_PORT}
 
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD [ "/usr/bin/curl", "localhost:${API_PORT}/health" ]
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+            CMD curl -s -f localhost:${API_PORT}/health || exit 1
 
 CMD agenda-rest --port ${API_PORT} --dburi ${MONGO_DB_URL}
 
