@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const program = require("commander");
+const { program } = require("commander");
 
 program
   .option("-u, --dburi <dburi>", "[optional] Full Mongo connection string")
@@ -25,21 +25,23 @@ program
   )
   .parse(process.argv);
 
+const options = program.opts();
+
 const settings = require("./settings");
 
-settings.dburi = program.dburi || settings.dburi;
-settings.dbname = program.dbname || settings.dbname;
-settings.dbhost = program.dbhost || settings.dbhost;
-settings.appId = program.key || settings.appId;
-settings.timeout = program.timeout || settings.timeout;
-if (program.agenda_settings) {
-  settings.agenda = JSON.parse(program.agenda_settings);
+settings.dburi = options.dburi || settings.dburi;
+settings.dbname = options.dbname || settings.dbname;
+settings.dbhost = options.dbhost || settings.dbhost;
+settings.appId = options.key || settings.appId;
+settings.timeout = options.timeout || settings.timeout;
+if (options.agenda_settings) {
+  settings.agenda = JSON.parse(options.agenda_settings);
 }
 
 const { app, agenda } = require("./dist");
 
-const server = app.listen(program.port, () => {
-  console.log(`App listening on port ${program.port}.`);
+const server = app.listen(options.port, () => {
+  console.log(`App listening on port ${options.port}.`);
 });
 
 async function graceful() {

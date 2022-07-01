@@ -156,6 +156,12 @@ test.serial("DELETE /api/job succeeds when a job is defined", async (t) => {
   t.is(res.status, 200);
 });
 
+test("GET /health returns 200 OK", async (t) => {
+  const res = await agendaAppRequest.get("/health");
+
+  t.is(res.status, 200);
+});
+
 test("Build URL with parameters.", (t) => {
   t.is(
     buildUrlWithParams({

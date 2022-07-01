@@ -2,17 +2,19 @@ import rp from "request-promise";
 import settings from "../settings";
 import { isValidDate, buildUrlWithParams, buildUrlWithQuery } from "./util";
 
-const getCheckJobFormatFunction = (jobProperty, defaultJob = {}) => (job) => {
-  if (!job.name || (jobProperty && !job[jobProperty])) {
-    throw new Error(
-      `expected request body to match {name${
-        jobProperty ? `, ${jobProperty}` : ""
-      }}`
-    );
-  }
+const getCheckJobFormatFunction =
+  (jobProperty, defaultJob = {}) =>
+  (job) => {
+    if (!job.name || (jobProperty && !job[jobProperty])) {
+      throw new Error(
+        `expected request body to match {name${
+          jobProperty ? `, ${jobProperty}` : ""
+        }}`
+      );
+    }
 
-  return { ...defaultJob, ...job };
-};
+    return { ...defaultJob, ...job };
+  };
 
 const doNotCheck = (job) => job;
 
@@ -90,7 +92,7 @@ const defineJob = async (job, jobs, agenda) => {
 const deleteJob = async (job, jobs, agenda) => {
   const numRemoved = await agenda.cancel(job);
   const obj = await jobs.remove(job);
-  return `removed ${obj.result.n} job definitions and ${numRemoved} job instances.`;
+  return `removed ${obj.deletedCount} job definitions and ${numRemoved} job instances.`;
 };
 
 const cancelJob = async (job, jobs, agenda) => {

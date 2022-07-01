@@ -1,3 +1,5 @@
+push-registry.env
+
 dist
 package-lock.json
 
