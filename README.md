@@ -1,3 +1,12 @@
+> [!CAUTION]
+> **This repository has been archived.**
+> 
+> agenda-rest is now part of the Agenda monorepo: **https://github.com/agenda/agenda/tree/main/packages/agenda-rest**
+> 
+> Please open all new issues and PRs in the main Agenda repository: https://github.com/agenda/agenda
+
+---
+
 [![npm version](https://badge.fury.io/js/agenda-rest.svg)](https://www.npmjs.com/package/agenda-rest)
 <a href="http://travis-ci.org/agenda/agenda-rest"><img src="https://api.travis-ci.org/agenda/agenda-rest.svg?branch=master" alt="Build Status"></a>
 <a href="https://slackin-ekwifvcwbr.now.sh/"><img src="https://slackin-ekwifvcwbr.now.sh/badge.svg" alt="Slack Status"></a>
